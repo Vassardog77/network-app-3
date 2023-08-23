@@ -1,3 +1,4 @@
+//ported to react native
 import { combineReducers } from "redux";
 
 let analytics = (analytics = [], action) => {

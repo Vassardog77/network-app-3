@@ -1,3 +1,4 @@
+//ported to react native
 import { combineReducers } from 'redux';
 import posts from './posts';
 import notifications from './notificationReducers'; // Make sure to import your notifications reducer here

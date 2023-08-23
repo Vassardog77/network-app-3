@@ -1,46 +1,76 @@
-import React from 'react';
-import CustomLink from "../../customComponents/CustomLink"
-import Logo from "../../images/Logo_1.6.png"
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faChartSimple,faListUl,faEnvelope,faComment,faUser,faHouse } from '@fortawesome/free-solid-svg-icons'
+import React, { useState, useEffect } from 'react';
+import { View, Image, TouchableOpacity, Text, StyleSheet, SafeAreaView } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faChartSimple, faListUl, faEnvelope, faComment, faUser, faHouse } from '@fortawesome/free-solid-svg-icons';
 
-export default function NavBar() {
-  const user = JSON.parse(localStorage.getItem('user'))
+export default function NavBar({ state, descriptors, navigation }) {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const userData = await AsyncStorage.getItem('user');
+        if (userData) {
+          setUser(JSON.parse(userData));
+        }
+      } catch (error) {
+        console.error("Failed to fetch user data:", error);
+      }
+    };
+    fetchUserData();
+  }, []);
+
+  if (!user) {
+    return null;
+  }
 
   return (
-    <div className="nav">
-      <div className="logo">
-        <img src={Logo} alt=""></img>
-      </div>
-      
-      {user.account_type !== 'student' && (
-        <div className="social_add">
-          <CustomLink to="/social-add">Add Social Media Accounts +</CustomLink> 
-        </div>
-      )}
+    <SafeAreaView style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', height: 60 }}>
+      {state.routes.map((route, index) => {
+        const { options } = descriptors[route.key];
+        const isFocused = state.index === index;
 
-      <div className="cornerthing">
-        <img src={user.profile_pic} alt=""></img>
-        {user.email.split('@')[0]}
-      </div>
-      
-      <div className="nav_links">
-        <ul>
-          {user.account_type !== 'student' && (
-            <CustomLink to="/"><div><FontAwesomeIcon icon={faHouse}/></div>Home</CustomLink>
-          )}
-          <CustomLink to="/feed"><div><FontAwesomeIcon icon={faListUl}/></div>Feed</CustomLink>
-          <CustomLink to="/messages"><div><FontAwesomeIcon icon={faComment}/></div>Messages</CustomLink>
+        // Define icon based on route name
+        let icon;
+        switch (route.name) {
+          case "Feed":
+            icon = faListUl;
+            break;
+          case "Messages":
+            icon = faComment;
+            break;
+          case "Home":
+            icon = faHouse;
+            break;
+          case "Profile":
+            icon = faUser;
+            break;
+          case "Email":
+            icon = faEnvelope;
+            break;
+          case "Analytics":
+            icon = faChartSimple;
+            break;
+          default:
+            icon = null;
+            break;
+        }
 
-          {user.account_type !== 'student' && (
-            <>
-              <CustomLink to={"/profile/"+user.email}><div><FontAwesomeIcon icon={faUser}/></div>Profile</CustomLink>
-              <CustomLink to="/email"><div><FontAwesomeIcon icon={faEnvelope}/></div>Email</CustomLink>
-              <CustomLink to="/analytics"><div><FontAwesomeIcon icon={faChartSimple}/></div>Analytics</CustomLink>
-            </>
-          )}
-        </ul>
-      </div>
-    </div>
+        return (
+          <TouchableOpacity
+            key={index}
+            onPress={() => navigation.navigate(route.name)}
+            style={[
+              { flex: 1, alignItems: 'center', justifyContent: 'center' },
+              isFocused ? { backgroundColor: 'lightgray' } : {}
+            ]}
+          >
+            <FontAwesomeIcon icon={icon} />
+            <Text>{route.name}</Text>
+          </TouchableOpacity>
+        );
+      })}
+    </SafeAreaView>
   );
 }

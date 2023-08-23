@@ -1,3 +1,4 @@
+//ported to react native
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Image, Picker } from 'react-native';
 import { useSignup } from '../../hooks/useSignup';

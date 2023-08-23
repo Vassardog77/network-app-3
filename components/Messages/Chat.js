@@ -1,33 +1,33 @@
+//ported to react native, (no alalmao)
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { base_url } from "../../api";
-import { useDispatch } from 'react-redux'
-import { sendNotification } from '../../actions/notificationActions' 
+import { useDispatch } from 'react-redux';
+import { sendNotification } from '../../actions/notificationActions';
 import Addpeople from "./Addpeople";
 import RenameChat from "./RenameChat";
-const current_user = JSON.parse(localStorage.getItem('user'))
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 
 function Chat({ socket, username, room }) {
   const dispatch = useDispatch();
   const [currentMessage, setCurrentMessage] = useState("");
   const [messageList, setMessageList] = useState([]);
   const [messageHistory, setMessageHistory] = useState([]);
-  let message_blocker = false //setting message blocker to stop duplicate messages (glitch)
+  const [currentUser, setCurrentUser] = useState({});
   const chatWindowRef = useRef(null);
-
-  // convert the room string to an array and trim the whitespace
+  
+  useEffect(() => {
+    (async () => {
+      const user = await AsyncStorage.getItem('user');
+      setCurrentUser(JSON.parse(user));
+    })();
+  }, []);
+  
   let roomEmails = room.split(",").map(email => email.trim());
-
-  // filter out the current user's email
-  let recipient = roomEmails.filter(email => email !== current_user.email);
-
+  let recipient = roomEmails.filter(email => email !== currentUser.email);
 
   const sendMessage = async () => {
-    let timeoutId
-    timeoutId = setTimeout(() => { //making the window scroll down to bottom (using setTimeout so that it happens after message is sent)
-      chatWindowRef.current.scrollTop = chatWindowRef.current.scrollHeight;
-    }, 100);
     if (currentMessage !== "") {
       const messageData = {
         room: room,
@@ -42,110 +42,128 @@ function Chat({ socket, username, room }) {
       await socket.emit("send_message", messageData);
       setMessageList((list) => [...list, messageData]);
       setCurrentMessage("");
-      //adding notification information
-      //console.log("sending message")
+
       dispatch(sendNotification({
         type : "message",
         room: room,
         recipient : recipient,
-        sender : current_user.email,
+        sender : currentUser.email,
         content : messageData
-      }))
+      }));
     }
   };
 
-  useEffect(() => { //getting message history
-    axios.post(base_url+'/chats', {
-      "room": room
-    })
-        .then(response => {
-            //console.log(response.data)
-            if (response.data){
-              setMessageHistory(response.data)
-            } else {
-              return
-            }
-          })
-    let timeoutId
-    timeoutId = setTimeout(() => {
-        chatWindowRef.current.scrollTop = chatWindowRef.current.scrollHeight;
-    }, 100);
-
+  useEffect(() => {
+    axios.post(base_url+'/chats', { "room": room })
+      .then(response => {
+        if (response.data){
+          setMessageHistory(response.data);
+        }
+      });
   }, []);
 
   useEffect(() => {
-    socket.on("receive_message", (data) => { //recieving messages (message blocker made to stop duplicate message glitch);
-      if (message_blocker === false) {
-        setMessageList((list) => [...list, data]);
-        let timeoutId
-          timeoutId = setTimeout(() => {
-          chatWindowRef.current.scrollTop = chatWindowRef.current.scrollHeight;
-        }, 100);
-        //message_blocker = true //uncomment this line to enable blocking of every other message
-      } else {
-        message_blocker = false
-      }
+    socket.on("receive_message", (data) => {
+      setMessageList((list) => [...list, data]);
     });
   }, [socket]);
 
   return (
-    !room || room === "undefined" ? <div /> :
-    <>
-      <div className="addpeople_button">
+    !room || room === "undefined" ? <View /> :
+    <View style={styles.container}>
+      <View style={styles.addPeopleButton}>
         <Addpeople room={room} />
         <RenameChat room={room} />
-      </div>
-      <div className="chat_window" ref={chatWindowRef}>
-        <div className="chat_body">
-          <div className="message_container">
-            {messageHistory.map((messageContent) => {
-              return (
-                <>
-                  <div className={username === messageContent.author ? "message_you" : "message_other"}>
-                    <div>
-                      <div>
-                        <p>{messageContent.message}</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="message_author">{messageContent.author.split('@')[0]}</div>
-                </>
-              );
-            })}
-            {messageList.map((messageContent) => {
-              return (
-                <>
-                  <div className={username === messageContent.author ? "message_you" : "message_other"}>
-                    <div>
-                      <div>
-                        <p>{messageContent.message}</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="message_author">{messageContent.author.split('@')[0]}</div>
-                </>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-      <div className="chat_footer">
-        <input
-          type="text"
+      </View>
+      <ScrollView ref={chatWindowRef} style={styles.chatWindow}>
+        <View style={styles.chatBody}>
+          {messageHistory.map((messageContent) => (
+            <View key={messageContent._id}>
+              <Text style={username === messageContent.author ? styles.messageYou : styles.messageOther}>
+                {messageContent.message}
+              </Text>
+              <Text style={styles.messageAuthor}>
+                {messageContent.author.split('@')[0]}
+              </Text>
+            </View>
+          ))}
+          {messageList.map((messageContent) => (
+            <View key={messageContent._id}>
+              <Text style={username === messageContent.author ? styles.messageYou : styles.messageOther}>
+                {messageContent.message}
+              </Text>
+              <Text style={styles.messageAuthor}>
+                {messageContent.author.split('@')[0]}
+              </Text>
+            </View>
+          ))}
+        </View>
+      </ScrollView>
+      <View style={styles.chatFooter}>
+        <TextInput
+          style={styles.input}
           value={currentMessage}
           placeholder="message..."
-          onChange={(event) => {
-            setCurrentMessage(event.target.value);
-          }}
-          onKeyPress={(event) => {
-            event.key === "Enter" && sendMessage();
-          }}
+          onChangeText={setCurrentMessage}
+          onSubmitEditing={sendMessage}
         />
-        <button onClick={sendMessage}>&#9658;</button>
-      </div>
-    </>
+        <TouchableOpacity onPress={sendMessage} style={styles.sendButton}>
+          <Text>&#9658;</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
-  
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  addPeopleButton: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 10,
+  },
+  chatWindow: {
+    flex: 1,
+  },
+  chatBody: {
+    padding: 10,
+  },
+  messageYou: {
+    alignSelf: 'flex-end',
+    backgroundColor: '#e1ffc7',
+    padding: 10,
+    borderRadius: 5,
+    margin: 5,
+  },
+  messageOther: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#fff',
+    padding: 10,
+    borderRadius: 5,
+    margin: 5,
+  },
+  messageAuthor: {
+    fontSize: 10,
+    color: '#aaa',
+  },
+  chatFooter: {
+    flexDirection: 'row',
+    padding: 10,
+    alignItems: 'center',
+  },
+  input: {
+    flex: 1,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 5,
+    marginRight: 10,
+    padding: 5,
+  },
+  sendButton: {
+    padding: 10,
+  },
+});
 
 export default Chat;

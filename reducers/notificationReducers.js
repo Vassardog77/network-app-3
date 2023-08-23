@@ -1,4 +1,4 @@
-// notificationsReducer.js
+//ported to react native
 
 const initialState = [];
 

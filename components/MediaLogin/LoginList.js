@@ -1,18 +1,13 @@
 import React from 'react';
-import DiscordLogin from './DiscordLogin';
-import FacebookLogin from './FacebookLogin';
-import GoogleLogin from './GoogleLogin';
-import InstagramLogin from './InstagramLogin';
+import { View, Text, StyleSheet } from 'react-native';
 
-function Loginbar(props) {
-    return (
-        <div className='Loginbar'>
-            <FacebookLogin></FacebookLogin>
-            <GoogleLogin></GoogleLogin>
-            <InstagramLogin></InstagramLogin>
-            {/*<DiscordLogin></DiscordLogin>*/}
-        </div>
-    );
-}
+const LoginList = () => {
+  return (
+    <View>
+      <Text>LoginList</Text>
+    </View>
+  );
+};
 
-export default Loginbar;
+
+export default LoginList;

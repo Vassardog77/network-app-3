@@ -1,3 +1,4 @@
+//ported to react native
 import { postCalendarEvent } from "../api"
 
 let posts = (posts = [], action) => {
