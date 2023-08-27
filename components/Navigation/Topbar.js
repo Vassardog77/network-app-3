@@ -1,19 +1,17 @@
 import React, { useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
-import CustomLink from "../../customComponents/CustomLink";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faBell } from '@fortawesome/free-solid-svg-icons'
+import { View, Text, TouchableOpacity, Image } from 'react-native';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useLogout } from "../../hooks/useLogout";
 import { base_url } from "../../api";
 import Notifications from './Notifications';
 
 export default function NavBar() {
     const { logout } = useLogout();
-    const current_user = JSON.parse(localStorage.getItem('user'))
+    const current_user = JSON.parse(localStorage.getItem('user')); // NOTE: localStorage is not available in React Native. Consider AsyncStorage or other storage solutions.
     const notificationRef = useRef();
 
-    // use redux state instead of local state
     const notifications = useSelector(state => state.notifications);
     const validNotifications = Array.isArray(notifications)
     ? notifications.filter(notification => ['message', 'comment', 'reply'].includes(notification.type))
@@ -21,61 +19,50 @@ export default function NavBar() {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        axios.post(base_url+'/notification/get',
-        {user: current_user.email})
+        axios.post(base_url+'/notification/get', {user: current_user.email})
             .then(response => {
-                console.log(response.data)
-                // update the redux state instead of local state
                 dispatch({ type: 'SET_NOTIFICATIONS', payload: response.data });
-                localStorage.setItem('notifications', JSON.stringify(response.data));
+                // Adjust the storage method here
             })
             .catch(error => {
                 console.error('Error fetching notifications:', error);
             });
 
-        function handleClickOutside(event) {
-            if (notificationRef.current && !notificationRef.current.contains(event.target)) {
-                var x = document.getElementById("notificationPopup");
-                if (x.style.display === "block") {
-                    setTimeout(function(){
-                        x.style.display = "none";
-                    }, 100);
-                }
-            }
-        }
-
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
+        // No equivalent of "click outside" in React Native. Consider modal or pop-up with close button instead.
     }, [dispatch]);
 
+    const [isNotificationVisible, setNotificationVisibility] = React.useState(false);
+
     function displayNotification() {
-        var x = document.getElementById("notificationPopup");
-        if (x.style.display === "block") {
-            x.style.display = "none";
-        } else {
-            x.style.display = "block";
-        }
+        setNotificationVisibility(!isNotificationVisible);
     }
 
-    // use the length of the valid notifications array for the notificationCount
     let notificationCount = validNotifications ? validNotifications.length : 0;
 
     return (
-        <div className="Topbar">
-            <span/>
-            <div>
-                <div className="notification-icon" onClick={displayNotification}>
-                    <FontAwesomeIcon icon={faBell} style={{ fontSize: '1.5vw'}}/>
-                    {notificationCount > 0 && <span className="notification-count">{notificationCount}</span>}
-                    <div id='notificationPopup' ref={notificationRef}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 10 }}>
+            <View />
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <TouchableOpacity onPress={displayNotification} style={{ marginRight: 10 }}>
+                    <FontAwesome name="bell" size={30} />
+                    {notificationCount > 0 && (
+                        <View style={{ position: 'absolute', right: 0, top: 0, backgroundColor: 'red', borderRadius: 10, padding: 5 }}>
+                            <Text style={{ color: 'white' }}>{notificationCount}</Text>
+                        </View>
+                    )}
+                </TouchableOpacity>
+                
+                {isNotificationVisible && (
+                    <View ref={notificationRef} style={{ position: 'absolute', top: 40 }}>
                         <Notifications />
-                    </div>
-                </div>
-                <img src={current_user.profile_pic} alt=""></img>
-                <button onClick={logout}>Log Out</button>
-            </div>
-        </div>
-    )
+                    </View>
+                )}
+                
+                <Image source={{ uri: current_user.profile_pic }} style={{ width: 40, height: 40, borderRadius: 20, marginRight: 10 }} />
+                <TouchableOpacity onPress={logout}>
+                    <Text>Log Out</Text>
+                </TouchableOpacity>
+            </View>
+        </View>
+    );
 }

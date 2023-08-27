@@ -1,4 +1,3 @@
-//ported to react native, (no alalmao)
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { base_url } from "../../api";
@@ -7,7 +6,10 @@ import { sendNotification } from '../../actions/notificationActions';
 import Addpeople from "./Addpeople";
 import RenameChat from "./RenameChat";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import { 
+  View, Text, TextInput, TouchableOpacity, ScrollView, 
+  StyleSheet, KeyboardAvoidingView, Platform 
+} from 'react-native';
 
 function Chat({ socket, username, room }) {
   const dispatch = useDispatch();
@@ -16,14 +18,14 @@ function Chat({ socket, username, room }) {
   const [messageHistory, setMessageHistory] = useState([]);
   const [currentUser, setCurrentUser] = useState({});
   const chatWindowRef = useRef(null);
-  
+
   useEffect(() => {
     (async () => {
       const user = await AsyncStorage.getItem('user');
       setCurrentUser(JSON.parse(user));
     })();
   }, []);
-  
+
   let roomEmails = room.split(",").map(email => email.trim());
   let recipient = roomEmails.filter(email => email !== currentUser.email);
 
@@ -33,10 +35,7 @@ function Chat({ socket, username, room }) {
         room: room,
         author: username,
         message: currentMessage,
-        time:
-          new Date(Date.now()).getHours() +
-          ":" +
-          new Date(Date.now()).getMinutes(),
+        time: new Date(Date.now()).getHours() + ":" + new Date(Date.now()).getMinutes(),
       };
 
       await socket.emit("send_message", messageData);
@@ -66,28 +65,23 @@ function Chat({ socket, username, room }) {
     socket.on("receive_message", (data) => {
       setMessageList((list) => [...list, data]);
     });
+    // Cleanup to avoid memory leaks on unmounting
+    return () => socket.off("receive_message");
   }, [socket]);
 
   return (
     !room || room === "undefined" ? <View /> :
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.container}
+    >
       <View style={styles.addPeopleButton}>
         <Addpeople room={room} />
         <RenameChat room={room} />
       </View>
       <ScrollView ref={chatWindowRef} style={styles.chatWindow}>
         <View style={styles.chatBody}>
-          {messageHistory.map((messageContent) => (
-            <View key={messageContent._id}>
-              <Text style={username === messageContent.author ? styles.messageYou : styles.messageOther}>
-                {messageContent.message}
-              </Text>
-              <Text style={styles.messageAuthor}>
-                {messageContent.author.split('@')[0]}
-              </Text>
-            </View>
-          ))}
-          {messageList.map((messageContent) => (
+          {messageHistory.concat(messageList).map((messageContent) => (
             <View key={messageContent._id}>
               <Text style={username === messageContent.author ? styles.messageYou : styles.messageOther}>
                 {messageContent.message}
@@ -111,7 +105,7 @@ function Chat({ socket, username, room }) {
           <Text>&#9658;</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 

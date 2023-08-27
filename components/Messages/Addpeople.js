@@ -1,83 +1,95 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { addPeople } from '../../actions/chatActions';
 import axios from "axios";
 import { base_url } from "../../api";
-import { useDispatch } from 'react-redux'
-import Select from 'react-select';
+import { useDispatch } from 'react-redux';
+import DropDownPicker from 'react-native-dropdown-picker';
 
 function Addpeople({ room }) {
-    const [users, setUsers] = useState([]); // to store the users
-    const [selectedUsers, setSelectedUsers] = useState([]); // to store selected users
-    const [addingPeople, setAddingPeople] = useState(false); // to track whether we're adding people
-
-    // Create a ref that we will attach to the span element
-    const wrapperRef = useRef(null);
-
-    // Function to handle outside click
-    const handleClickOutside = (event) => {
-        if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
-            setAddingPeople(false);
-        }
-    };
-
-    // Add the outside click listener when the component mounts and remove it when it unmounts
-    useEffect(() => {
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
+    const [users, setUsers] = useState([]);
+    const [selectedUsers, setSelectedUsers] = useState([]);
+    const [addingPeople, setAddingPeople] = useState(false);
 
     useEffect(() => {           
-        axios.get(base_url+'/api/user/get') //getting all users to display 
+        axios.get(base_url+'/api/user/get')
         .then(response => {
-          setUsers(response.data.map(user => ({ value: user.email, label: user.email })));
+            setUsers(response.data.map(user => ({ label: user.email, value: user.email })));
         })
-    }, [])
+    }, []);
 
     const dispatch = useDispatch();
 
     let add_people = () => {
-        // Check if room is undefined or "undefined", or if no users are selected
         if (!room || room === "undefined" || selectedUsers.length === 0) {
             console.log("Room is undefined or no users selected. Can't submit.")
             return;
         }
-        console.log("dispatching")
+        console.log("dispatching");
         dispatch(addPeople({
             room,
-            selectedUsers: selectedUsers.map(user => user.value)
-        }))
-        setAddingPeople(false); // Reset state after adding people
-        setSelectedUsers([]); // Clear selection after adding people
+            selectedUsers
+        }));
+        setAddingPeople(false);
+        setSelectedUsers([]);
     }
 
-    const handleSelectChange = (selectedOption) => {
-        setSelectedUsers(selectedOption);
+    const handleSelectChange = (items) => {
+        setSelectedUsers(items);
     }
 
     const handleClickAdd = () => {
-        setAddingPeople(true); // Begin adding people
+        setAddingPeople(true);
     }
 
-    // Add the ref to the span
+    const handleCancel = () => {
+        setAddingPeople(false);
+        setSelectedUsers([]);
+    }
+
     return (
-        <span ref={wrapperRef}>
+        <View style={styles.container}>
             {addingPeople ? 
                 <>
-                    <Select
-                        isMulti
-                        value={selectedUsers}
-                        onChange={handleSelectChange}
-                        options={users}
+                    <DropDownPicker
+                        items={users}
+                        multiple={true}
+                        multipleText="%d items have been selected."
+                        min={0}
+                        max={10}
+                        defaultValue={selectedUsers}
+                        containerStyle={{ height: 40 }}
+                        style={{ backgroundColor: '#fafafa' }}
+                        dropDownStyle={{ backgroundColor: '#fafafa' }}
+                        onChangeItem={items => handleSelectChange(items)}
                     />
-                    <button onClick={add_people}>Submit</button>
+                    <TouchableOpacity onPress={add_people} style={styles.button}>
+                        <Text>Submit</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={handleCancel} style={styles.button}>
+                        <Text>Cancel</Text>
+                    </TouchableOpacity>
                 </> 
                 :
-                <button onClick={handleClickAdd}>+ Add People</button>
+                <TouchableOpacity onPress={handleClickAdd} style={styles.button}>
+                    <Text>+ Add People</Text>
+                </TouchableOpacity>
             }
-        </span>
+        </View>
     );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        padding: 10
+    },
+    button: {
+        padding: 10,
+        backgroundColor: '#ddd',
+        marginVertical: 5,
+        alignItems: 'center'
+    }
+});
 
 export default Addpeople;

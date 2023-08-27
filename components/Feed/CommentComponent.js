@@ -1,38 +1,23 @@
-// CommentComponent.js
-import React, { useState, useEffect, useRef } from 'react';
+// CommentComponentNative.js
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, Button, TouchableWithoutFeedback, Keyboard, ScrollView } from 'react-native';
 import { v4 as uuidv4 } from 'uuid'; 
 import { createComment } from '../../actions/commentActions';
 import { sendNotification } from '../../actions/notificationActions';
-import ReplyComponent from './ReplyComponent';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome' 
-import { faReply } from '@fortawesome/free-solid-svg-icons' 
+import ReplyComponent from './ReplyComponent'; // Ensure you've a React Native version of this.
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faReply } from '@fortawesome/free-solid-svg-icons';
 
-const CommentComponent = ({ post, current_user, dispatch }) => {
+const CommentComponentNative = ({ post, current_user, dispatch }) => {
     const [comment, setComment] = useState(''); 
     const [postComments, setPostComments] = useState(post.comments || []);
-    const [showReplies, setShowReplies] = useState({}); // Changed this to an object
-
-    const commentRef = useRef(null);
+    const [showReplies, setShowReplies] = useState({});
 
     useEffect(() => {
         setPostComments(post.comments || []);
     }, [post]);
 
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (commentRef.current && !commentRef.current.contains(event.target)) {
-                setShowReplies({}); // Close all replies
-            }
-        }
-
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, []);
-
-    const handleSubmitComment = (event) => {
-        event.preventDefault();
+    const handleSubmitComment = () => {
         if(comment.trim() === '') {
             return;
         }
@@ -47,7 +32,7 @@ const CommentComponent = ({ post, current_user, dispatch }) => {
                 message: comment,
                 id: post._id
             }
-        }))
+        }));
         setPostComments([...postComments, newComment]);
         setComment('');
     };
@@ -60,31 +45,36 @@ const CommentComponent = ({ post, current_user, dispatch }) => {
     }
 
     return (
-        <div ref={commentRef}>
-            <div className='comment_bar'>
-                <textarea
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    placeholder="Add a comment..."
-                /> 
-                <button onClick={(event) => handleSubmitComment(event)}>Submit</button>
-            </div>
-            <div>
-                {postComments.slice().reverse().map((cmt) => (
-                    <div key={cmt._id}>
-                        <div className='commentSection'>
-                            <div className='commentText'><b>{cmt.user.split('@')[0]}</b>: {cmt.comment}</div>
-                            <button onClick={() => toggleShowReplies(cmt.id)}>
-                                <FontAwesomeIcon icon={faReply} />
-                                {showReplies[cmt.id]}
-                            </button>
-                        </div>
-                        {showReplies[cmt.id] && <ReplyComponent parentComment={cmt} post={post} current_user={current_user} dispatch={dispatch} />}
-                    </div>
-                ))}
-            </div>
-        </div>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <View style={{ flex: 1 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <TextInput
+                        style={{ flex: 1, borderWidth: 1, borderColor: 'gray', borderRadius: 5, margin: 10 }}
+                        value={comment}
+                        onChangeText={setComment}
+                        placeholder="Add a comment..."
+                    />
+                    <Button title="Submit" onPress={handleSubmitComment} />
+                </View>
+                <ScrollView>
+                    {postComments.slice().reverse().map((cmt) => (
+                        <View key={cmt._id} style={{ marginBottom: 10 }}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <Text><b>{cmt.user.split('@')[0]}</b>: {cmt.comment}</Text>
+                                <TouchableWithoutFeedback onPress={() => toggleShowReplies(cmt.id)}>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                        <FontAwesomeIcon icon={faReply} />
+                                        <Text>{showReplies[cmt.id] ? "Hide Replies" : "Show Replies"}</Text>
+                                    </View>
+                                </TouchableWithoutFeedback>
+                            </View>
+                            {showReplies[cmt.id] && <ReplyComponent parentComment={cmt} post={post} current_user={current_user} dispatch={dispatch} />}
+                        </View>
+                    ))}
+                </ScrollView>
+            </View>
+        </TouchableWithoutFeedback>
     );
 };
 
-export default CommentComponent;
+export default CommentComponentNative;

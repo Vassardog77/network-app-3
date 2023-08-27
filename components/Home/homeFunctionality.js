@@ -1,71 +1,85 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { postCalendarEvent } from '../../actions/calendarActions'
-import { useSelector } from 'react-redux'
+import { postCalendarEvent } from '../../actions/calendarActions';
+import { useSelector } from 'react-redux';
 import GoogleLogin from '../MediaLogin/GoogleLogin';
+import { View, TextInput, Button, Alert, StyleSheet } from 'react-native';
 
 function HomeFunctionality(props) {
-  const current_user = JSON.parse(localStorage.getItem('user'))
-  let google_login = localStorage.getItem('google_login')
-  const events = useSelector((state) => state.events)
-  let [Content, setContent] = useState()
+    const current_user = JSON.parse(localStorage.getItem('user'));
+    let google_login = localStorage.getItem('google_login');
+    const events = useSelector((state) => state.events);
+    let [Content, setContent] = useState();
 
-  const dispatch = useDispatch()      //establishing dispatch function (necessary for some reason)
+    const dispatch = useDispatch();
 
-  let postEvent = async (e) => {
-    e.preventDefault()
-    var cal_event = {"user": current_user.email,
-      "data": {
-        "summary": e.target[0].value,
-        "location": e.target[1].value,
-        "description": e.target[2].value,
-        "start": {
-          "dateTime": e.target[3].value+':00',
-          'timeZone': Intl.DateTimeFormat().resolvedOptions().timeZone
-        },
-        "end": {
-          "dateTime": e.target[4].value+':00',
-          'timeZone': Intl.DateTimeFormat().resolvedOptions().timeZone
+    let postEvent = async (e) => {
+        e.preventDefault();
+        var cal_event = {
+            "user": current_user.email,
+            "data": {
+                "summary": e.target[0].value,
+                "location": e.target[1].value,
+                "description": e.target[2].value,
+                "start": {
+                    "dateTime": e.target[3].value + ':00',
+                    'timeZone': Intl.DateTimeFormat().resolvedOptions().timeZone
+                },
+                "end": {
+                    "dateTime": e.target[4].value + ':00',
+                    'timeZone': Intl.DateTimeFormat().resolvedOptions().timeZone
+                }
+            }
+        };
+        dispatch(postCalendarEvent(cal_event));
+        Alert.alert("Event Scheduled!");
+    };
+
+    useEffect(() => {
+        if (google_login === 'true') {
+            setContent(
+                <View style={styles.container}>
+                    <View>
+                        <TextInput placeholder='title' />
+                        <TextInput placeholder='location' />
+                        <TextInput placeholder='description' />
+                        <View>
+                            <TextInput style={styles.dateInput} placeholder="Start Date" />
+                            <TextInput style={styles.dateInput} placeholder="End Date" />
+                        </View>
+                        <Button title='Schedule Event' onPress={postEvent} />
+                    </View>
+                </View>
+            );
+        } else if (google_login === 'false') {
+            setContent(
+                <View style={styles.loginMessage}>
+                    <View><Text>Please log in with google to continue</Text></View>
+                    <View><GoogleLogin /></View>
+                </View>
+            );
         }
-      }
-    }
-    dispatch(postCalendarEvent(cal_event))
-    alert("Event Scehduled!")
-  }
+    }, [setContent, google_login]);
 
-
-  useEffect(() => {
-    if(google_login === 'true') {
-        setContent(
-          <div>
-          <form onSubmit={postEvent}>
-            <div><textarea placeholder='title'></textarea></div>
-            <div><textarea placeholder='location'></textarea></div>
-            <div><textarea placeholder='description'></textarea></div>
-            <div>
-            <input type="datetime-local" required></input>
-            <input type="datetime-local" required></input>
-            </div>
-            <div><button type='submit'>Schedule Event</button></div>
-          </form>
-        </div>
-        )
-      } else if (google_login === 'false') {
-        setContent(
-          <div className='login_message'>
-            <div>Please log in with google to continue</div>
-            <div className='Loginbar'><GoogleLogin></GoogleLogin></div>
-          </div>
-        )
-        return
-      }
-  }, [setContent,google_login])
-  
     return (
-        <div >
+        <View style={styles.container}>
             {Content}
-       </div>
+        </View>
     );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        padding: 15,
+    },
+    loginMessage: {
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    dateInput: {
+        marginBottom: 10,
+    }
+});
 
 export default HomeFunctionality;

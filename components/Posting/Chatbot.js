@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { Configuration, OpenAIApi } from "openai"
+import { Configuration, OpenAIApi } from "openai";
 import axios from 'axios';
 import { base_url } from "../../api";
+import { View, Text, TextInput, Button, StyleSheet, ScrollView } from 'react-native';
 
 function Chatbot() {
   const [content, setContent] = useState("");
   const [postDescription, setPostDescription] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [apiKey, setApiKey] = useState(null);
-  const [loading, setLoading] = useState(false); // New state variable for loading
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    axios.post(base_url+'/posts/chatbot')
+    axios.post(base_url + '/posts/chatbot')
       .then(res => setApiKey(res.data.key))
       .catch(err => console.error(err));
   }, []);
@@ -30,18 +31,18 @@ function Chatbot() {
       Please never deviate from this format.
       `;
 
-    setLoading(true); // Indicate that loading has started
+    setLoading(true);
     openai.createChatCompletion({
-        model: "gpt-3.5-turbo",
-        messages: [
-          { role: "system", content: "You are an expert social media manager." },
-          { role: "user", content: prompt }
-        ]
+      model: "gpt-3.5-turbo",
+      messages: [
+        { role: "system", content: "You are an expert social media manager." },
+        { role: "user", content: prompt }
+      ]
     }).then(res => {
-        setContent(""); // Clearing the content to give a typing effect
-        typeWriterEffect(res.data.choices[0].message.content);
-        setSubmitted(false);
-        setLoading(false); // Loading has finished
+      setContent("");
+      typeWriterEffect(res.data.choices[0].message.content);
+      setSubmitted(false);
+      setLoading(false);
     });
 
   }, [submitted, apiKey]);
@@ -57,7 +58,7 @@ function Chatbot() {
       } else {
         clearInterval(interval);
       }
-    }, 50); 
+    }, 50);
   }
 
   const handleSubmit = () => {
@@ -65,19 +66,42 @@ function Chatbot() {
   }
 
   return (
-    <div id='captionGenerator' className='chatbot_parent'>
-        <div className='chatbot_heading'>Need some help with captions? Try our AI caption generator!</div>
-        <div>
-          <textarea
-            placeholder="Enter your post description"
-            value={postDescription}
-            onChange={e => setPostDescription(e.target.value)}
-          />
-          <button onClick={handleSubmit}>Generate Captions</button>
-        </div>
-        {loading ? <div>Loading...</div> : <pre>{content}</pre>} {/* If loading is true, show 'Loading...', else show the content */}
-    </div>
+    <View style={styles.container}>
+      <Text style={styles.heading}>Need some help with captions? Try our AI caption generator!</Text>
+      <TextInput
+        style={styles.textarea}
+        multiline
+        placeholder="Enter your post description"
+        value={postDescription}
+        onChangeText={text => setPostDescription(text)}
+      />
+      <Button title="Generate Captions" onPress={handleSubmit} />
+      {loading ? <Text>Loading...</Text> : <ScrollView style={styles.content}><Text>{content}</Text></ScrollView>}
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20
+  },
+  heading: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20
+  },
+  textarea: {
+    height: 100,
+    borderColor: 'gray',
+    borderWidth: 1,
+    marginBottom: 20,
+    padding: 10
+  },
+  content: {
+    flex: 1,
+    marginTop: 20
+  }
+});
 
 export default Chatbot;

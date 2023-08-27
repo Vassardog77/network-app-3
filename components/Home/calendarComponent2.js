@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { base_url } from '../../api';
-import GoogleLogin from '../MediaLogin/GoogleLogin';
+import GoogleLogin from '../MediaLogin/GoogleLogin'; // Ensure this is compatible with React Native.
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 function CalendarComponent2(props) {
 
@@ -171,16 +172,69 @@ function CalendarComponent2(props) {
 
       
    
-    return (
-        <div className='home'>
-             <div className='calendar_topbar'>
-                <button onClick={previous_month}>{'<'}</button>
-                <>{months[(current_month+MonthIncrement-1)]}</>
-                <button onClick={next_month}>{'>'}</button>
-            </div>
+      return (
+        <View style={styles.home}>
+            <View style={styles.calendarTopbar}>
+                <TouchableOpacity style={styles.navButton} onPress={previous_month}>
+                    <Text>{'<'}</Text>
+                </TouchableOpacity>
+                <Text>{months[(current_month+MonthIncrement-1)]}</Text>
+                <TouchableOpacity style={styles.navButton} onPress={next_month}>
+                    <Text>{'>'}</Text>
+                </TouchableOpacity>
+            </View>
             {Calendar}
-        </div>
-    )
+        </View>
+    );
 }
 
-export default CalendarComponent2
+const styles = StyleSheet.create({
+    home: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 10,
+        backgroundColor: 'white', // You can adjust this to match your website's theme.
+    },
+    calendarTopbar: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: 10,
+        backgroundColor: '#f4f4f4', // An approximation.
+    },
+    navButton: {
+        padding: 10,
+        backgroundColor: '#e0e0e0', // An approximation.
+        borderRadius: 4,
+    },
+    calendarElement: {
+        padding: 5,
+        backgroundColor: '#f9f9f9',
+        borderWidth: 1,
+        borderColor: '#d0d0d0',
+        borderRadius: 4,
+    },
+    currentDate: {
+        backgroundColor: '#d0e0ff', // An approximation to make the current date stand out.
+    },
+    calendarEvent: {
+        marginTop: 5,
+        padding: 2,
+        backgroundColor: '#e6ffe6', // Light green to indicate an event.
+        borderRadius: 2,
+    },
+    loginMessage: {
+        padding: 20,
+        alignItems: 'center',
+    },
+    loginBar: {
+        marginTop: 10,
+        padding: 10,
+        backgroundColor: '#d0d0d0', // An approximation.
+        borderRadius: 4,
+    },
+    // You can continue defining styles for other parts of the component, and adjust as needed.
+});
+
+export default CalendarComponent2;

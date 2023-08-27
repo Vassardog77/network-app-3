@@ -1,66 +1,60 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { renameChat } from '../../actions/chatActions';
-import { useDispatch } from 'react-redux'
+import { useDispatch } from 'react-redux';
+import { View, TextInput, Button, TouchableWithoutFeedback, Keyboard } from 'react-native';
 
 function RenameChat({ room }) {
   const dispatch = useDispatch();
-  const [newChatName, setNewChatName] = useState(''); // New state variable for the text area value
-  const [showTextArea, setShowTextArea] = useState(false); // New state variable to handle the visibility of the text area
-  const renameRef = useRef(); // Reference to the parent element
-
+  const [newChatName, setNewChatName] = useState('');
+  const [showTextArea, setShowTextArea] = useState(false);
+  
   useEffect(() => {
-    // Define the click handler
-    const handleClickOutside = event => {
-      if (renameRef.current && !renameRef.current.contains(event.target)) {
-        setShowTextArea(false);
-      }
-    }
-
-    // Attach the handler when the component is mounted
-    document.addEventListener('mousedown', handleClickOutside);
-
-    // Return a cleanup function to be run when the component is unmounted
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+    // In React Native, the keyboard itself is a primary source of "outside" taps.
+    const handleKeyboardDismiss = () => {
+      setShowTextArea(false);
     };
-  }, []); // Empty dependency array ensures this effect runs only on mount and unmount
 
-  let handleButtonClick = () => {
+    Keyboard.addListener('keyboardDidHide', handleKeyboardDismiss);
+
+    return () => {
+      Keyboard.removeListener('keyboardDidHide', handleKeyboardDismiss);
+    };
+  }, []);
+
+  const handleButtonClick = () => {
     if (showTextArea) {
-      // The textarea is currently visible, so handle the renaming
-      if (room && room !== "undefined") { // Checking if room is not undefined or "undefined"
-        if (newChatName.trim() !== "") { // Checking if the text area is not empty
-          console.log("dispatching")
+      if (room && room !== "undefined") {
+        if (newChatName.trim() !== "") {
+          console.log("dispatching");
           dispatch(renameChat({
             room: room,
             newChatName: newChatName
           }));
-        } else {
-          //alert("Chat name cannot be blank!");
         }
-      } else {
-        //alert("Room is undefined!");
+        // Else, you can handle error feedback through a UI component if you'd like.
       }
-      // Reset the chat name and hide the text area
       setNewChatName('');
       setShowTextArea(false);
     } else {
-      // The textarea is currently hidden, so show it
       setShowTextArea(true);
     }
   }
 
   return (
-    <span className='rename' ref={renameRef}>
-      {showTextArea && (
-        <textarea 
-          placeholder='Add new name...'
-          value={newChatName}
-          onChange={(e) => setNewChatName(e.target.value)}
-        />
-      )}
-      <button onClick={handleButtonClick}>{showTextArea ? 'Submit' : 'Rename Chat'}</button>
-    </span>
+    <TouchableWithoutFeedback onPress={() => setShowTextArea(false)}>
+      <View style={{ flex: 1 }}>
+        {showTextArea && (
+          <TextInput 
+            placeholder='Add new name...'
+            value={newChatName}
+            onChangeText={setNewChatName}
+            multiline={true} // Since it's acting like a textarea
+            style={{ height: 100, borderColor: 'gray', borderWidth: 1, padding: 10 }}
+          />
+        )}
+        <Button title={showTextArea ? 'Submit' : 'Rename Chat'} onPress={handleButtonClick} />
+      </View>
+    </TouchableWithoutFeedback>
   );
 }
 
