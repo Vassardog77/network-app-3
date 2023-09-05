@@ -1,12 +1,11 @@
 //ported to react native
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Image, Picker } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Image, Picker, TouchableOpacity } from 'react-native';
 import { useSignup } from '../../hooks/useSignup';
-import CustomLink from '../../customComponents/CustomLink';
 import Logo from '../../assets/Logo_1.6.png';
 import ImagePicker from 'react-native-image-picker';
 
-const Signup = () => {
+const Signup = ({ navigation }) => {
   const [Screen_name, setScreen_name] = useState('');
   const [Profile_pic, setProfile_pic] = useState(null);
   const [Email, setEmail] = useState('');
@@ -92,7 +91,9 @@ const Signup = () => {
 
         <View style={styles.userAuth}>
           <Text>Have an account?</Text>
-          <CustomLink to='/login'>Log in</CustomLink>
+          <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.loginSwitch}>
+            <Text>Log in</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </View>

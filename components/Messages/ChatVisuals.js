@@ -7,6 +7,7 @@ import { deleteNotification } from '../../actions/notificationActions';
 import { View, Text, Button, FlatList, TouchableOpacity } from 'react-native';
 import Select from 'react-native-dropdown-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Chat from './Chat';
 
 const socket = io.connect(base_url);
 

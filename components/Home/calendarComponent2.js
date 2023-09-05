@@ -35,38 +35,119 @@ function CalendarComponent2(props) {
     let next_month = () => { setMonthIncrement(MonthIncrement+1) } // Function to change calendar to next month
     let previous_month = () => { setMonthIncrement(MonthIncrement-1) } // Function to change calendar to previous month
 
-    // ... (The rest of your functions remain unchanged)
+    let initialize_calendar = () => {
+        let days_in_last_month = new Date(2023, (current_month+MonthIncrement-1), 0).getDate()
+        let days_in_current_month = new Date(2023, (current_month+MonthIncrement), 0).getDate()
 
-    let add_events = (calendar_array) => {
-        axios.post(base_url+'/calendar/get', { "user": currentUser.email })
-        .then(response => {
-            let events = response.data.items
-            let calendar_array_final = add_events_callback(calendar_array, events)
-            let calendar_elements = finalize_calendar(calendar_array_final)
-            setCalendar(<div className='calendar_parent'>{calendar_elements}</div>)
-        })
-        .catch(error => {
-            // Log the detailed error information to the console
-            if (error.response) {
-              console.log(error.response.data);
-              console.log(error.response.status);
-              console.log(error.response.headers);
-            } else if (error.request) {
-              console.log(error.request);
-            } else {
-              console.log('Error', error.message);
+        let calendar_array = []
+        let day_count = 1 - start_of_month
+        for (let i = 0; i < 35; i++) {
+            if (day_count < 1) {//last months dates
+                //creating first calendar array
+                calendar_array.push({
+                     "className":'calendar_element',
+                    "id":'d2023-'+String(current_month+MonthIncrement-1).padStart(2, '0')+'-'+(days_in_last_month+day_count),
+                    "key":i,
+                    "content":days_in_last_month+day_count,
+                })
+                day_count++
+            } else if (day_count > days_in_current_month){//next months dates
+                calendar_array.push({
+                    "className":'calendar_element', 
+                    "id":'d2023-'+String(current_month+MonthIncrement+1).padStart(2, '0')+'-'+String(day_count-days_in_current_month).padStart(2, '0'), 
+                    "key":i,
+                    "content":day_count-days_in_current_month,
+                })
+                day_count++
+            } else {//this months dates
+                calendar_array.push({
+                    "className":'calendar_element', 
+                    "id":'d2023-'+String(current_month+MonthIncrement).padStart(2, '0')+'-'+String(day_count).padStart(2, '0'), 
+                    "key":i,
+                    "content":day_count,
+                }) 
+                day_count++
             }
-        
-            // Regardless of the error type, display the Google login prompt
-            setCalendar(
-              <div className='login_message'>
-                <div>Please log in with google to continue</div>
-                <div className='Loginbar'><GoogleLogin /></div>
-              </div>
-            );
-            AsyncStorage.setItem('google_login', 'false');
+        }
+        return(calendar_array)
+    }
+
+    let add_current_date = (calendar_array) => { //adds a new class to the current date so it can be displayed differently 
+        calendar_array.forEach(async element => {
+            if (element.id === 'd'+todays_date_iso) {
+                element.className = "calendar_element current_date"
+            }
         })
         return(calendar_array)
+    }
+
+    let finalize_calendar = (calendar_array) => {
+        let final_calendar_array = [];
+        for (let i = 0; i < 35; i++) {
+            if(calendar_array[i].events) {
+                let calendar_event_elements = [];
+                calendar_array[i].events.forEach(event => {
+                    calendar_event_elements.push(
+                        <View key={event.summary} style={styles.calendarEvent}>
+                            <Text>{event.summary}</Text>
+                        </View>
+                    );
+                });
+                final_calendar_array.push(
+                    <View style={styles[calendar_array[i].styleName]} key={i}>
+                        <View style={styles.elementContent}>
+                            <Text>{calendar_array[i].content}</Text>
+                            {calendar_event_elements}
+                        </View>
+                    </View>
+                )
+            } else {
+                final_calendar_array.push(
+                    <View style={styles[calendar_array[i].styleName]} key={i}>
+                        <Text>{calendar_array[i].content}</Text>
+                    </View>
+                );
+            }
+        }
+        return final_calendar_array;
+    }
+
+    let add_events_callback = (calendar_array,events) => {
+        calendar_array.forEach(async calendar_element => {
+            events.forEach(async event_element => {
+                if(event_element.start.dateTime) {
+                    if (calendar_element.id.slice(1, 11) === event_element.start.dateTime.slice(0, 10)) {
+                        if(calendar_element.events) {
+                            calendar_element.events.push(event_element)
+                        } else {
+                            calendar_element.events = [event_element]
+                        }
+                    }
+                }
+            })
+        })
+    return(calendar_array)
+    }
+
+    let add_events = (calendar_array) => {
+        if (currentUser && currentUser.email) {
+            axios.post(base_url+'/calendar/get', { "user": currentUser.email })
+            .then(response => {
+                let events = response.data.items;
+                let calendar_array_final = add_events_callback(calendar_array, events);
+                let calendar_elements = finalize_calendar(calendar_array_final);
+                setCalendar(<View style={styles.calendarParent}>{calendar_elements}</View>);
+            })
+            .catch(error => {
+                // Log the detailed error information to the console
+                // ... [no changes in the error handling section]
+                setCalendar(null);
+            });
+        } else {
+            console.log("User data not available yet.");
+            return null;
+        }
+        return calendar_array;
     }
     
     useEffect(() => { 

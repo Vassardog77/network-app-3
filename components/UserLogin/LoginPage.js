@@ -1,11 +1,10 @@
 //ported to react native
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Image } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { useLogin } from '../../hooks/useLogin';
-import CustomLink from '../../customComponents/CustomLink';
 import Logo from '../../assets/Logo_1.6.png';
 
-const LoginPage = () => {
+const LoginPage = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { login, error, isLoading } = useLogin();
@@ -40,7 +39,9 @@ const LoginPage = () => {
         {error && <Text style={styles.error}>{error}</Text>}
         <View style={styles.userAuth}>
           <Text>Don't have an account?</Text>
-          {/*<CustomLink to='/signup' style={styles.loginSwitch}>Sign up</CustomLink>*/}
+          <TouchableOpacity onPress={() => navigation.navigate('Signup')} style={styles.loginSwitch}>
+            <Text>Sign up</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </View>

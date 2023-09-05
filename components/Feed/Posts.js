@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState,useEffect} from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { deletePost } from '../../actions/posts';
 import { FontAwesome } from '@expo/vector-icons'; // Using Expo's FontAwesome for the icon
@@ -6,6 +6,7 @@ import { View, Text, Image, TouchableOpacity } from 'react-native';
 import LikeComponent from './LikeComponent';
 import CommentComponent from './CommentComponent';
 import CustomLink from "../../customComponents/CustomLink"; // Assuming this is refactored for React Native
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function Post({ post, current_user, dispatch }) {
     if (!post) {
@@ -38,8 +39,19 @@ function Post({ post, current_user, dispatch }) {
 
 function Posts({ post: singlePost }) {
     const dispatch = useDispatch();
-    const current_user = JSON.parse(AsyncStorage.getItem('user')); // You may want to consider using AsyncStorage in React Native
+    const [currentUser, setCurrentUser] = useState(null); // State to hold current user info
     const posts = useSelector((state) => state.posts);
+
+    useEffect(() => {
+        // Fetch user from AsyncStorage and update state
+        AsyncStorage.getItem('user')
+            .then(user => {
+                setCurrentUser(JSON.parse(user));
+            })
+            .catch(error => {
+                console.error("Error fetching user from AsyncStorage:", error);
+            });
+    }, []); // The empty array means this useEffect will only run once, similar to componentDidMount
 
     if (!posts || !Array.isArray(posts)) {
         return <Text>Loading posts...</Text>;
@@ -50,7 +62,7 @@ function Posts({ post: singlePost }) {
     return (
         <View style={{ padding: 20 }}>
             {postsToRender.slice().reverse().map((post, index) => 
-                <Post key={index} post={post} current_user={current_user} dispatch={dispatch} />
+                <Post key={index} post={post} current_user={currentUser} dispatch={dispatch} />
             )}
         </View>
     );

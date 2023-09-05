@@ -10,6 +10,7 @@ import reducers from './reducers';
 
 import LoginPage from './components/UserLogin/LoginPage.js';
 import SignupPage from './components/UserLogin/SignupPage.js';
+import AuthStack from './components/UserLogin/AuthStack.js';
 
 import YourAppNavigation from './YourAppNavigation';
 
@@ -36,6 +37,7 @@ export default function App() {
   }, []);
 
   if (isUserLoggedIn === null) {
+    console.log("no user")
     return null; // or a loading spinner if you prefer
   }
 
@@ -43,7 +45,7 @@ export default function App() {
     <Provider store={store}>
       <AuthContextProvider>
         <NavigationContainer>
-          {isUserLoggedIn ? <YourAppNavigation /> : <LoginPage />}
+          {isUserLoggedIn ? <YourAppNavigation /> : <AuthStack />}
         </NavigationContainer>
       </AuthContextProvider>
     </Provider>
