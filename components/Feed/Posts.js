@@ -38,7 +38,7 @@ function Post({ post, current_user, dispatch }) {
 
 function Posts({ post: singlePost }) {
     const dispatch = useDispatch();
-    const current_user = JSON.parse(localStorage.getItem('user')); // You may want to consider using AsyncStorage in React Native
+    const current_user = JSON.parse(AsyncStorage.getItem('user')); // You may want to consider using AsyncStorage in React Native
     const posts = useSelector((state) => state.posts);
 
     if (!posts || !Array.isArray(posts)) {

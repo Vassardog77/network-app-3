@@ -3,15 +3,32 @@ import { useDispatch } from 'react-redux';
 import { postCalendarEvent } from '../../actions/calendarActions';
 import { useSelector } from 'react-redux';
 import GoogleLogin from '../MediaLogin/GoogleLogin';
-import { View, TextInput, Button, Alert, StyleSheet } from 'react-native';
+import { View, TextInput, Button, Alert, Text, StyleSheet } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function HomeFunctionality(props) {
-    const current_user = JSON.parse(localStorage.getItem('user'));
-    let google_login = localStorage.getItem('google_login');
+    const [current_user, setCurrentUser] = useState(null);
+    const [google_login, setGoogleLogin] = useState(null);
     const events = useSelector((state) => state.events);
     let [Content, setContent] = useState();
 
     const dispatch = useDispatch();
+
+    const loadStorageData = async () => {
+        try {
+            let user = await AsyncStorage.getItem('user');
+            let googleStatus = await AsyncStorage.getItem('google_login');
+            
+            setCurrentUser(JSON.parse(user));
+            setGoogleLogin(googleStatus);
+        } catch (error) {
+            console.error("Failed to load data from storage:", error);
+        }
+    };
+
+    useEffect(() => {
+        loadStorageData();
+    }, []);
 
     let postEvent = async (e) => {
         e.preventDefault();

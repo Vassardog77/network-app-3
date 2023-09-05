@@ -6,15 +6,15 @@ import { base_url } from "../../api";
 import { deleteNotification } from '../../actions/notificationActions';
 import { View, Text, Button, FlatList, TouchableOpacity } from 'react-native';
 import Select from 'react-native-dropdown-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const socket = io.connect(base_url);
-const current_user = JSON.parse(localStorage.getItem('user'));
 
 function ChatVisuals({ route }) {
-  // Use optional chaining to prevent undefined errors
   const url_room = route?.params?.url_room;
   const decodedUrlRoom = url_room ? decodeURIComponent(url_room) : null;
 
+  const [currentUser, setCurrentUser] = useState(null);
   const [Room, setRoom] = useState("");
   const [Roomlist, setRoomlist] = useState([]);
   const [showChat, setShowChat] = useState(false);
@@ -26,6 +26,13 @@ function ChatVisuals({ route }) {
   const notifications = useSelector(state => state.notifications);
 
   useEffect(() => {
+    async function fetchCurrentUser() {
+      const user = await AsyncStorage.getItem('user');
+      setCurrentUser(JSON.parse(user));
+    }
+
+    fetchCurrentUser();
+
     if (decodedUrlRoom) {
       joinRoom(decodedUrlRoom);
     }
@@ -35,59 +42,61 @@ function ChatVisuals({ route }) {
     console.log(email_list);
     setShowChat(false);
     setSelectedEmails([]);
-  
+
     setTimeout(() => {
       let emails = email_list.split(',').map(email => email.trim()).sort();
-      let room = emails.includes(current_user.email) ? emails.join(', ') : [current_user.email, ...emails].sort().join(', ');
-  
+      let room = emails.includes(currentUser.email) ? emails.join(', ') : [currentUser.email, ...emails].sort().join(', ');
+
       setRoom(room);
       socket.emit("join_room", room);
-  
+
       let newNotifications = Array.isArray(notifications) ? notifications.filter((notification) => {
         if (notification.type === 'message' && notification.content.room === room) {
-          dispatch(deleteNotification({user: current_user.email, unreads: notification})); 
-          return false; 
+          dispatch(deleteNotification({user: currentUser.email, unreads: notification}));
+          return false;
         }
         return true;
       }) : [];
-  
+
       setShowChat(true);
     }, 1);
   };
 
   useEffect(() => {
-    axios.get(base_url+'/api/user/get')
-    .then(response => {
-      const options = response.data.map(user => ({
-        value: user.email,
-        label: user.email.split('@')[0]
-      }));
-      setEmailOptions(options);
-    });
-
-    axios.post(base_url+'/chats', {
-      "user": current_user.email
-    })
-    .then(response => {
-      const roomlist_array = response.data.map(roomObj => {
-        let room = roomObj.room;
-        let roomName = roomObj.room_name;
-        let usernames = room.split(',').map(email => email.trim().split('@')[0]);
-        let displayText = roomName ? roomName : usernames.join(', ');
-        return {
-          room: room,
-          displayText: displayText
-        };
+    axios.get(base_url + '/api/user/get')
+      .then(response => {
+        const options = response.data.map(user => ({
+          value: user.email,
+          label: user.email.split('@')[0]
+        }));
+        setEmailOptions(options);
       });
-      setRoomlist(roomlist_array);
-    });
-  }, []);
+
+    if (currentUser) {
+      axios.post(base_url + '/chats', {
+        "user": currentUser.email
+      })
+        .then(response => {
+          const roomlist_array = response.data.map(roomObj => {
+            let room = roomObj.room;
+            let roomName = roomObj.room_name;
+            let usernames = room.split(',').map(email => email.trim().split('@')[0]);
+            let displayText = roomName ? roomName : usernames.join(', ');
+            return {
+              room: room,
+              displayText: displayText
+            };
+          });
+          setRoomlist(roomlist_array);
+        });
+    }
+  }, [currentUser]);
 
   return (
     <View style={{ flex: 1 }}>
       <View style={{ flex: 1 }}>
         <Text>Previous Chats:</Text>
-        <FlatList 
+        <FlatList
           data={Roomlist}
           renderItem={({ item }) => (
             <TouchableOpacity onPress={() => joinRoom(item.room)}>
@@ -102,7 +111,7 @@ function ChatVisuals({ route }) {
         ) : (
           <View>
             <Text>Select Users:</Text>
-            <Select 
+            <Select
               items={emailOptions}
               multiple={true}
               defaultValue={selectedEmails}
@@ -118,7 +127,7 @@ function ChatVisuals({ route }) {
           {newChat && <Button title="Create Chat" onPress={() => joinRoom(selectedEmails.map(emailOption => emailOption.value).join(', '))} />}
         </View>
       ) : (
-        <Chat socket={socket} username={current_user.email} room={Room} />
+        <Chat socket={socket} username={currentUser.email} room={Room} />
       )}
     </View>
   );

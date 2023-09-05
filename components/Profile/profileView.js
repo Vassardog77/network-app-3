@@ -3,14 +3,14 @@ import { View, Text, Button, Image, StyleSheet } from 'react-native';
 import axios from 'axios';
 import { base_url } from '../../api';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Importing AsyncStorage
 
 function ProfileView(props) {
     const navigation = useNavigation();
     const route = useRoute();
     const { id } = route.params || {};
 
-    const current_user = JSON.parse(localStorage.getItem('user')); // You might want to use AsyncStorage in React Native for this
-
+    const [currentUser, setCurrentUser] = useState(null); // Set initial value to null
     const [Img1, setImg1] = useState('');
     const [Orgname, setOrgname] = useState('');
     const [Img2, setImg2] = useState('');
@@ -21,7 +21,7 @@ function ProfileView(props) {
     const [noProfile, setNoProfile] = useState(false);
 
     const fetchData = async () => { 
-        const email = id ? id : current_user.email;
+        const email = id ? id : currentUser.email;
 
         await axios.post(base_url+'/profiles/get', { data: email })
         .then((response) => {
@@ -41,11 +41,23 @@ function ProfileView(props) {
     };
 
     useEffect(() => {
+        const fetchCurrentUser = async () => {
+            try {
+                const user = await AsyncStorage.getItem('user'); // Using AsyncStorage
+                if (user !== null) {
+                    setCurrentUser(JSON.parse(user));
+                }
+            } catch (error) {
+                console.error("Error reading user from AsyncStorage:", error);
+            }
+        };
+        
+        fetchCurrentUser();
         fetchData();
     }, []);
 
     const messageLink = () => {
-        const room = [current_user.email, id].sort().join(', ');
+        const room = [currentUser.email, id].sort().join(', ');
         navigation.navigate('Messages', { room });
     };
 

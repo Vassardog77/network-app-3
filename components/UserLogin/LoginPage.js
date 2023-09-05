@@ -40,7 +40,7 @@ const LoginPage = () => {
         {error && <Text style={styles.error}>{error}</Text>}
         <View style={styles.userAuth}>
           <Text>Don't have an account?</Text>
-          <CustomLink to='/signup' style={styles.loginSwitch}>Sign up</CustomLink>
+          {/*<CustomLink to='/signup' style={styles.loginSwitch}>Sign up</CustomLink>*/}
         </View>
       </View>
     </View>
