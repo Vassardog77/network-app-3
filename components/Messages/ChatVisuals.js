@@ -7,18 +7,15 @@ import { deleteNotification } from '../../actions/notificationActions';
 import { View, Text, Button, FlatList, TouchableOpacity } from 'react-native';
 import Select from 'react-native-dropdown-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Chat from './Chat';
 
 const socket = io.connect(base_url);
 
-function ChatVisuals({ route }) {
-  const url_room = route?.params?.url_room;
-  const decodedUrlRoom = url_room ? decodeURIComponent(url_room) : null;
+function ChatVisuals({ room, navigation }) { // Added the navigation prop here
+  const decodedRoom = room ? decodeURIComponent(room) : null;
 
   const [currentUser, setCurrentUser] = useState(null);
   const [Room, setRoom] = useState("");
   const [Roomlist, setRoomlist] = useState([]);
-  const [showChat, setShowChat] = useState(false);
   const [newChat, setnewChat] = useState(false);
   const [selectedEmails, setSelectedEmails] = useState([]);
   const [emailOptions, setEmailOptions] = useState([]);
@@ -34,14 +31,13 @@ function ChatVisuals({ route }) {
 
     fetchCurrentUser();
 
-    if (decodedUrlRoom) {
-      joinRoom(decodedUrlRoom);
+    if (decodedRoom) {
+      joinRoom(decodedRoom);
     }
-  }, [decodedUrlRoom]);
+  }, [decodedRoom]);
 
   const joinRoom = (email_list) => {
     console.log(email_list);
-    setShowChat(false);
     setSelectedEmails([]);
 
     setTimeout(() => {
@@ -59,7 +55,13 @@ function ChatVisuals({ route }) {
         return true;
       }) : [];
 
-      setShowChat(true);
+      // Navigate to the ChatScreen and pass necessary data as props
+      navigation.navigate('ChatScreen', {
+        socket: socket,
+        username: currentUser.email,
+        room: Room
+      });
+
     }, 1);
   };
 
@@ -123,13 +125,9 @@ function ChatVisuals({ route }) {
         )}
       </View>
 
-      {!showChat ? (
-        <View style={{ flex: 2 }}>
-          {newChat && <Button title="Create Chat" onPress={() => joinRoom(selectedEmails.map(emailOption => emailOption.value).join(', '))} />}
-        </View>
-      ) : (
-        <Chat socket={socket} username={currentUser.email} room={Room} />
-      )}
+      <View style={{ flex: 2 }}>
+        {newChat && <Button title="Create Chat" onPress={() => joinRoom(selectedEmails.map(emailOption => emailOption.value).join(', '))} />}
+      </View>
     </View>
   );
 }

@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Button, TouchableWithoutFeedback, StyleSheet } from 'react-native';
+import CalendarComponent1 from './calendarComponent1';
 import CalendarComponent2 from './calendarComponent2';
 import HomeFunctionality from './homeFunctionality';
-import { useNavigation } from '@react-navigation/native';
 
-function HomeVisuals(props) {
+function HomeVisuals({ navigation }) {
     const popupRef = useRef();
-    const navigation = useNavigation();
     const [showPopup, setShowPopup] = useState(false);
 
     function display() {
@@ -14,14 +13,14 @@ function HomeVisuals(props) {
     }
 
     function navigateToCreatePost() {
-        navigation.navigate('CreatePost'); // Assuming 'CreatePost' is the name of the route you want to navigate to.
+        navigation.navigate('FormScreen');
     }
 
     return (
         <View style={styles.home}>
             <View style={styles.home_post_buttons}>
                 <Button title="+ Create Post" onPress={navigateToCreatePost} />
-                <Button title="+ Create Event" onPress={display} />
+                {/*<Button title="+ Create Event" onPress={display} />*/}
                 {showPopup && (
                     <TouchableWithoutFeedback onPress={() => setShowPopup(false)}>
                         <View ref={popupRef} style={styles.popup}>
@@ -30,7 +29,7 @@ function HomeVisuals(props) {
                     </TouchableWithoutFeedback>
                 )}
             </View>
-            <CalendarComponent2 />
+            <CalendarComponent1 />
         </View>
     );
 }

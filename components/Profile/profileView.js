@@ -20,40 +20,45 @@ function ProfileView(props) {
     const [Img4, setImg4] = useState('');
     const [noProfile, setNoProfile] = useState(false);
 
-    const fetchData = async () => { 
-        const email = id ? id : currentUser.email;
-
-        await axios.post(base_url+'/profiles/get', { data: email })
-        .then((response) => {
-            if (response.data) {
-                setImg1(response.data.img1);
-                setOrgname(response.data.org_name);
-                setImg2(response.data.img2);
-                setContact(response.data.contact);
-                setImg3(response.data.img3);
-                setDescription(response.data.description);
-                setImg4(response.data.img4);
-                setNoProfile(false);
-            } else {
-                setNoProfile(true);
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const user = await AsyncStorage.getItem('user');
+                const parsedUser = JSON.parse(user);
+                setCurrentUser(parsedUser);
+                return parsedUser;
+            } catch (error) {
+                console.log("Error fetching user from AsyncStorage:", error);
+                return null;
+            }
+        }
+    
+        const fetchData = async (userEmail) => {
+            const email = id ? id : userEmail;
+    
+            await axios.post(base_url+'/profiles/get', { data: email })
+            .then((response) => {
+                if (response.data) {
+                    //console.log(response.data)
+                    setImg1(response.data.img1);
+                    setOrgname(response.data.org_name);
+                    setImg2(response.data.img2);
+                    setContact(response.data.contact);
+                    setImg3(response.data.img3);
+                    setDescription(response.data.description);
+                    setImg4(response.data.img4);
+                    setNoProfile(false);
+                } else {
+                    setNoProfile(true);
+                }
+            });
+        };
+    
+        fetchUser().then(user => {
+            if (user) {
+                fetchData(user.email);
             }
         });
-    };
-
-    useEffect(() => {
-        const fetchCurrentUser = async () => {
-            try {
-                const user = await AsyncStorage.getItem('user'); // Using AsyncStorage
-                if (user !== null) {
-                    setCurrentUser(JSON.parse(user));
-                }
-            } catch (error) {
-                console.error("Error reading user from AsyncStorage:", error);
-            }
-        };
-        
-        fetchCurrentUser();
-        fetchData();
     }, []);
 
     const messageLink = () => {

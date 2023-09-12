@@ -71,7 +71,7 @@ function Chatbot() {
       <TextInput
         style={styles.textarea}
         multiline
-        placeholder="Enter your post description"
+        placeholder="Enter your post description..."
         value={postDescription}
         onChangeText={text => setPostDescription(text)}
       />
@@ -89,7 +89,8 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 20
+    marginBottom: 20,
+    marginTop: 100
   },
   textarea: {
     height: 100,

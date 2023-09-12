@@ -12,6 +12,7 @@ export const useLogout = () => {
 
             // dispatch logout action
             dispatch({type: 'LOGOUT'})
+            
         } catch(e) {
             // error reading value
             console.error(e);

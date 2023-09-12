@@ -5,7 +5,7 @@ import GoogleLogin from '../MediaLogin/GoogleLogin'; // Ensure this is compatibl
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-function CalendarComponent2(props) {
+function CalendarComponent2({ navigation }) {
 
     let [Calendar, setCalendar] = useState()
     let [MonthIncrement, setMonthIncrement] = useState(0)
@@ -84,9 +84,10 @@ function CalendarComponent2(props) {
     let finalize_calendar = (calendar_array) => {
         let final_calendar_array = [];
         for (let i = 0; i < 35; i++) {
-            if(calendar_array[i].events) {
+            let currentElement = calendar_array[i];
+            if (currentElement.events) {
                 let calendar_event_elements = [];
-                calendar_array[i].events.forEach(event => {
+                currentElement.events.forEach(event => {
                     calendar_event_elements.push(
                         <View key={event.summary} style={styles.calendarEvent}>
                             <Text>{event.summary}</Text>
@@ -94,23 +95,22 @@ function CalendarComponent2(props) {
                     );
                 });
                 final_calendar_array.push(
-                    <View style={styles[calendar_array[i].styleName]} key={i}>
-                        <View style={styles.elementContent}>
-                            <Text>{calendar_array[i].content}</Text>
-                            {calendar_event_elements}
-                        </View>
+                    <View style={[styles.calendarElement, styles[currentElement.styleName]]} key={i}>
+                        <Text>{currentElement.content}</Text>
+                        {calendar_event_elements}
                     </View>
-                )
+                );
             } else {
                 final_calendar_array.push(
-                    <View style={styles[calendar_array[i].styleName]} key={i}>
-                        <Text>{calendar_array[i].content}</Text>
+                    <View style={[styles.calendarElement, styles[currentElement.styleName]]} key={i}>
+                        <Text>{currentElement.content}</Text>
                     </View>
                 );
             }
         }
         return final_calendar_array;
     }
+    
 
     let add_events_callback = (calendar_array,events) => {
         calendar_array.forEach(async calendar_element => {
@@ -186,18 +186,31 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 10,
         backgroundColor: '#f4f4f4',
+        marginBottom: 10,
     },
     navButton: {
         padding: 10,
         backgroundColor: '#e0e0e0',
         borderRadius: 4,
     },
+    calendarParent: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        width: '100%',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+    },
     calendarElement: {
+        width: '14%', // for 7 columns 
+        height: 50,
+        justifyContent: 'center',
+        alignItems: 'center',
         padding: 5,
         backgroundColor: '#f9f9f9',
-        borderWidth: 1,
+        borderWidth: 1, // This gives the outline
         borderColor: '#d0d0d0',
         borderRadius: 4,
+        marginBottom: 5,
     },
     currentDate: {
         backgroundColor: '#d0e0ff',

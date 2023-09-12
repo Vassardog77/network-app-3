@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, Button, TextInput, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Button, TextInput, ScrollView, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { base_url } from '../../api';
@@ -14,10 +14,10 @@ const getEmailUser = async () => {
 }
 
 const Emailvisuals = (props) => {
-    const popupRef = useRef();
     const [Emails, setEmails] = useState([...Array(5)].map(() => ({ name: '', date: '', subject: '', message: '' })));
     const [error, setError] = useState(false);
     const [userEmail, setUserEmail] = useState('');
+    const [showPopup, setShowPopup] = useState(false);
 
     useEffect(() => {
         getEmailUser().then(user => setUserEmail(user?.email));
@@ -40,9 +40,7 @@ const Emailvisuals = (props) => {
     }, [userEmail]);
 
     const displayPopup = () => {
-        popupRef.current.setNativeProps({
-            style: { display: popupRef.current.style.display === 'none' ? 'flex' : 'none' }
-        });
+        setShowPopup(!showPopup);
     }
 
     return (
@@ -81,7 +79,11 @@ const Emailvisuals = (props) => {
                     </ScrollView>
                 )}
             </View>
-            <View ref={popupRef} style={styles.popup}><EmailFunctionality /></View>
+            {showPopup && (
+                <View style={styles.popup}>
+                    <EmailFunctionality />
+                </View>
+            )}
         </View>
     );
 }
@@ -120,7 +122,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between'
     },
     popup: {
-        display: 'none',
         position: 'absolute',
         top: 0,
         left: 0,

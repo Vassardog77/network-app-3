@@ -11,7 +11,8 @@ import {
   StyleSheet, KeyboardAvoidingView, Platform 
 } from 'react-native';
 
-function Chat({ socket, username, room }) {
+function Chat({ route }) {
+  const { socket, username, room } = route.params;
   const dispatch = useDispatch();
   const [currentMessage, setCurrentMessage] = useState("");
   const [messageList, setMessageList] = useState([]);

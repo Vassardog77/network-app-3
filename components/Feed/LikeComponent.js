@@ -32,10 +32,10 @@ const LikeComponent = ({ post, current_user, dispatch }) => {
     return (
         <View style={styles.likeBar}>
             <TouchableOpacity 
-                style={[styles.likeButton, likeState ? styles.liked : styles.notLiked]}
+                style={styles.likeButton}
                 onPress={handleLike}>
-                <FontAwesome name="heart" style={styles.likeIcon} />
-                <Text style={styles.likeCount}>
+                <FontAwesome name="heart" style={likeState ? styles.liked : styles.notLiked} />
+                <Text style={likeState ? styles.liked : styles.notLiked}>
                     {likeCount} {likeCount === 1 ? 'Like' : 'Likes'}
                 </Text>
             </TouchableOpacity>
@@ -47,20 +47,24 @@ const styles = StyleSheet.create({
     likeBar: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
-        padding: 10
+        justifyContent: 'left',
+        padding: 1
     },
     likeButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 5
+        padding: 1
     },
     liked: {
-        color: 'red'
+        color: 'red',
+        fontSize: 15,
+        marginRight: 5
     },
     notLiked: {
-        color: 'grey'
+        color: 'grey',
+        fontSize: 15,
+        marginRight: 5
     },
     likeIcon: {
         fontSize: 20,

@@ -1,65 +1,64 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { View, Text, Button, StyleSheet } from 'react-native';
-import { FontAwesome5 } from '@expo/vector-icons'; // Note: Assuming you are using Expo
+import { View, Text, Button, StyleSheet, ScrollView } from 'react-native';
+import { FontAwesome5 } from '@expo/vector-icons';
 import { getPosts } from '../../actions/posts';
-import Posts from './Posts'; // Ensure this component is also adapted for React Native
-import AsyncStorage from '@react-native-async-storage/async-storage'; // For storage
+import Posts from './Posts';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function Feed({ navigation }) {
     const dispatch = useDispatch();
+    const [currentUser, setCurrentUser] = useState(null);
 
     useEffect(() => {
         dispatch(getPosts());
     }, [dispatch]);
 
-    // Note: This method is asynchronous since accessing AsyncStorage is async in React Native
-    const getCurrentUser = async () => {
-        try {
-            const userString = await AsyncStorage.getItem('user');
-            return userString ? JSON.parse(userString) : null;
-        } catch (error) {
-            console.error("Failed reading user from AsyncStorage", error);
-        }
-    }
+    useEffect(() => {
+        const fetchCurrentUser = async () => {
+            try {
+                const userString = await AsyncStorage.getItem('user');
+                setCurrentUser(userString ? JSON.parse(userString) : null);
+            } catch (error) {
+                console.error("Failed reading user from AsyncStorage", error);
+            }
+        };
+        
+        fetchCurrentUser();
+    }, []);
 
     const navigateToCreatePost = () => {
-        navigation.navigate('CreatePost'); // Assuming you have a route named 'CreatePost'
+        navigation.navigate('FormScreen');
     };
 
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container}>
             <View style={styles.componentParent}>
-                <View style={styles.componentHeader}>
-                    <Text>Feed</Text>
-                    <FontAwesome5 name="list-ul" size={24} color="black" />
+
+                <View>
+                    {/*I dont know why but it breaks if I remove this view*/}
                 </View>
 
-                {getCurrentUser().account_type !== 'student' && (
+                {currentUser && currentUser.account_type !== 'student' && (
                     <View style={styles.createButtonContainer}>
                         <Button title="+ Create Post" onPress={navigateToCreatePost} />
                     </View>
                 )}
-                
+
                 <Posts />
                 <View style={styles.spacer}></View>
             </View>
-        </View>
+        </ScrollView> 
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor: '#f4f4f4'
     },
     componentParent: {
         // Add styles similar to your .component_parent class
-    },
-    componentHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        // Add styles similar to your .component_header class
     },
     createButtonContainer: {
         // Add styles similar to your .create_buttons class

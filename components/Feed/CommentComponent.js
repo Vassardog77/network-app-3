@@ -58,13 +58,15 @@ const CommentComponentNative = ({ post, current_user, dispatch }) => {
                 </View>
                 <ScrollView>
                     {postComments.slice().reverse().map((cmt) => (
-                        <View key={cmt._id} style={{ marginBottom: 10 }}>
-                            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                                <Text><b>{cmt.user.split('@')[0]}</b>: {cmt.comment}</Text>
+                        <View key={cmt._id} style={styles.commentContainer}>
+                            <View style={styles.commentHeader}>
+                                <Text>
+                                    <Text style={{fontWeight: 'bold'}}>{cmt.user.split('@')[0]}</Text>: {cmt.comment}
+                                </Text>
                                 <TouchableWithoutFeedback onPress={() => toggleShowReplies(cmt.id)}>
                                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                         <FontAwesomeIcon icon={faReply} />
-                                        <Text>{showReplies[cmt.id] ? "Hide Replies" : "Show Replies"}</Text>
+                                        <Text>{showReplies[cmt.id] ? "" : ""}</Text>
                                     </View>
                                 </TouchableWithoutFeedback>
                             </View>
@@ -75,6 +77,18 @@ const CommentComponentNative = ({ post, current_user, dispatch }) => {
             </View>
         </TouchableWithoutFeedback>
     );
+};
+
+const styles = {
+    commentContainer: {
+        marginBottom: 10,
+        marginRight: '5%' // This sets the margin on the right side to 20%.
+    },
+    commentHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+    }
 };
 
 export default CommentComponentNative;
