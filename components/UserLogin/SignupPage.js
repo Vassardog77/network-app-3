@@ -1,9 +1,9 @@
-//ported to react native
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Image, Picker, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { useSignup } from '../../hooks/useSignup';
 import Logo from '../../assets/Logo_1.6.png';
 import ImagePicker from 'react-native-image-picker';
+import { Picker } from '@react-native-picker/picker';  // <-- Updated Picker import
 
 const Signup = ({ navigation }) => {
   const [Screen_name, setScreen_name] = useState('');
@@ -74,24 +74,24 @@ const Signup = ({ navigation }) => {
           secureTextEntry={true}
         />
 
-        <Text>Account type:</Text>
-        <Picker
-          selectedValue={Account_type}
-          style={{height: 50, width: 150}}
-          onValueChange={(itemValue, itemIndex) =>
-            setAccount_type(itemValue)
-          }>
-          <Picker.Item label="--Please choose an option--" value="" />
-          <Picker.Item label="Student" value="student" />
-          <Picker.Item label="Organization" value="organization" />
-        </Picker>
+      <Text>Account type:</Text>
+      <Picker
+        selectedValue={Account_type}
+        style={{height: 50, width: 150}}
+        onValueChange={(itemValue, itemIndex) =>
+          setAccount_type(itemValue)
+        }>
+        <Picker.Item label="--Please choose an option--" value="" />
+        <Picker.Item label="Student" value="student" />
+        <Picker.Item label="Organization" value="organization" />
+      </Picker>
 
         <Button disabled={isLoading} title='Sign up' onPress={handleSubmit} />
         {error && <Text style={styles.error}>{error}</Text>}
 
         <View style={styles.userAuth}>
           <Text>Have an account?</Text>
-          <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.loginSwitch}>
+          <TouchableOpacity onPress={() => navigation.navigate('LoginScreen')} style={styles.loginSwitch}>
             <Text>Log in</Text>
           </TouchableOpacity>
         </View>

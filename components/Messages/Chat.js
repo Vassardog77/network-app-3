@@ -30,6 +30,12 @@ function Chat({ route }) {
   let roomEmails = room.split(",").map(email => email.trim());
   let recipient = roomEmails.filter(email => email !== currentUser.email);
 
+  const scrollToBottom = () => {
+    if (chatWindowRef.current) {
+      chatWindowRef.current.scrollToEnd({ animated: true });
+    }
+  };
+
   const sendMessage = async () => {
     if (currentMessage !== "") {
       const messageData = {
@@ -80,14 +86,18 @@ function Chat({ route }) {
         <Addpeople room={room} />
         <RenameChat room={room} />
       </View>
-      <ScrollView ref={chatWindowRef} style={styles.chatWindow}>
+      <ScrollView 
+        ref={chatWindowRef} 
+        style={styles.chatWindow}
+        onContentSizeChange={scrollToBottom}
+      >
         <View style={styles.chatBody}>
           {messageHistory.concat(messageList).map((messageContent) => (
             <View key={messageContent._id}>
               <Text style={username === messageContent.author ? styles.messageYou : styles.messageOther}>
                 {messageContent.message}
               </Text>
-              <Text style={styles.messageAuthor}>
+              <Text style={username === messageContent.author ? styles.messageAuthorYou : styles.messageAuthorOther}>
                 {messageContent.author.split('@')[0]}
               </Text>
             </View>
@@ -139,7 +149,12 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     margin: 5,
   },
-  messageAuthor: {
+  messageAuthorYou: {
+    alignSelf: 'flex-end',
+    fontSize: 10,
+    color: '#aaa',
+  },
+  messageAuthorOther: {
     fontSize: 10,
     color: '#aaa',
   },

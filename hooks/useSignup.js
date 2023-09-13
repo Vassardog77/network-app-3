@@ -3,11 +3,13 @@ import { useState } from 'react';
 import { base_url } from '../api';
 import { useAuthContext } from './useAuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native'; 
 
 export const useSignup = () => {
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(null);
   const { dispatch } = useAuthContext();
+  const navigation = useNavigation();
 
   const signup = async (screen_name, profile_pic, email, password, account_type) => {
     setIsLoading(true);
@@ -37,6 +39,7 @@ export const useSignup = () => {
 
       // Update loading state
       setIsLoading(false);
+      navigation.navigate('HomeScreen');
     }
   }
 

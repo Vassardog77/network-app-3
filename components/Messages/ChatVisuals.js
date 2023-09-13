@@ -4,13 +4,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import io from "socket.io-client";
 import { base_url } from "../../api";
 import { deleteNotification } from '../../actions/notificationActions';
-import { View, Text, Button, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, Button, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import Select from 'react-native-dropdown-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const socket = io.connect(base_url);
 
-function ChatVisuals({ room, navigation }) { // Added the navigation prop here
+function ChatVisuals({ room, navigation }) {
   const decodedRoom = room ? decodeURIComponent(room) : null;
 
   const [currentUser, setCurrentUser] = useState(null);
@@ -59,7 +59,7 @@ function ChatVisuals({ room, navigation }) { // Added the navigation prop here
       navigation.navigate('ChatScreen', {
         socket: socket,
         username: currentUser.email,
-        room: Room
+        room: room  // Using the local room variable directly
       });
 
     }, 1);
@@ -96,40 +96,81 @@ function ChatVisuals({ room, navigation }) { // Added the navigation prop here
   }, [currentUser]);
 
   return (
-    <View style={{ flex: 1 }}>
-      <View style={{ flex: 1 }}>
-        <Text>Previous Chats:</Text>
-        <FlatList
-          data={Roomlist}
-          renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => joinRoom(item.room)}>
-              <Text>{item.displayText}</Text>
-            </TouchableOpacity>
-          )}
-          keyExtractor={item => item.room}
-        />
-
-        {!newChat ? (
-          <Button title="Create New Chat?" onPress={() => setnewChat(true)} />
-        ) : (
-          <View>
-            <Text>Select Users:</Text>
-            <Select
-              items={emailOptions}
-              multiple={true}
-              defaultValue={selectedEmails}
-              onChangeItem={item => setSelectedEmails(item)}
+    <View style={styles.container}>
+        <View style={styles.chatList}>
+            <Text style={styles.header}>Previous Chats:</Text>
+            <FlatList
+                data={Roomlist}
+                renderItem={({ item }) => (
+                    <TouchableOpacity style={styles.chatItem} onPress={() => joinRoom(item.room)}>
+                        <Text style={styles.chatText}>{item.displayText}</Text>
+                    </TouchableOpacity>
+                )}
+                keyExtractor={item => item.room}
             />
-            <Button title="Create Chat" onPress={() => joinRoom(selectedEmails.map(emailOption => emailOption.value).join(', '))} />
-          </View>
-        )}
-      </View>
 
-      <View style={{ flex: 2 }}>
-        {newChat && <Button title="Create Chat" onPress={() => joinRoom(selectedEmails.map(emailOption => emailOption.value).join(', '))} />}
-      </View>
+            {!newChat ? (
+                <Button title="Create New Chat?" onPress={() => setnewChat(true)} />
+            ) : null}
+        </View>
+
+        {newChat && (
+            <View style={styles.newChatContainer}>
+                <View style={styles.newChat}>
+                    <Text style={styles.header}>Select Users:</Text>
+                    <Select
+                        items={emailOptions}
+                        multiple={true}
+                        defaultValue={selectedEmails}
+                        onChangeItem={item => setSelectedEmails(item)}
+                    />
+                </View>
+                <Button title="Create Chat" onPress={() => joinRoom(selectedEmails.map(emailOption => emailOption.value).join(', '))} />
+            </View>
+        )}
     </View>
-  );
+);
 }
+
+const styles = StyleSheet.create({
+  container: {
+      flex: 1,
+      backgroundColor: '#f8f8f8'
+  },
+  chatList: {
+      flex: 4, // Adjusted this
+      padding: 10,
+  },
+  header: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  chatItem: {
+    backgroundColor: '#fff',
+    padding: 15,
+    borderRadius: 5,
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 1,
+  },
+  chatText: {
+    fontSize: 16,
+  },
+  newChat: {
+    marginTop: 20,
+    padding: 10,
+  },
+  flex2: {
+    flex: 2,
+  },
+  newChatContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+}
+});
 
 export default ChatVisuals;

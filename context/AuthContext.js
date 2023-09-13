@@ -1,4 +1,5 @@
-//ported to react native
+// AuthContext.js
+
 import React, { createContext, useReducer, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -7,16 +8,16 @@ export const AuthContext = createContext();
 export const authReducer = (state, action) => {
   switch (action.type) {
     case 'LOGIN':
-      return { user: action.payload };
+      return { ...state, user: action.payload, isUserLoggedIn: true };
     case 'LOGOUT':
-      return { user: null };
+      return { ...state, user: null, isUserLoggedIn: false };
     default:
       return state;
   }
 };
 
 export const AuthContextProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(authReducer, { user: null });
+  const [state, dispatch] = useReducer(authReducer, { user: null, isUserLoggedIn: false });
 
   const loadInitialState = async () => {
     try {

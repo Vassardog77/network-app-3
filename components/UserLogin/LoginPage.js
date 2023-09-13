@@ -39,7 +39,7 @@ const LoginPage = ({ navigation }) => {
         {error && <Text style={styles.error}>{error}</Text>}
         <View style={styles.userAuth}>
           <Text>Don't have an account?</Text>
-          <TouchableOpacity onPress={() => navigation.navigate('Signup')} style={styles.loginSwitch}>
+          <TouchableOpacity onPress={() => navigation.navigate('SignupScreen')} style={styles.loginSwitch}>
             <Text>Sign up</Text>
           </TouchableOpacity>
         </View>

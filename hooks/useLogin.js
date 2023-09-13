@@ -4,11 +4,13 @@ import { useAuthContext } from './useAuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { base_url } from '../api';
+import { useNavigation } from '@react-navigation/native';  
 
 export const useLogin = () => {
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(null);
   const { dispatch } = useAuthContext();
+  const navigation = useNavigation();  // <-- Use the hook to get navigation object
 
   const login = async (email, password) => {
     setIsLoading(true);
@@ -41,6 +43,7 @@ export const useLogin = () => {
 
       // update loading state
       setIsLoading(false);
+      navigation.navigate('HomeScreen');
     }
   };
 
