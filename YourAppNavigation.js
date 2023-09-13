@@ -91,11 +91,16 @@ function AnalyticsStack() {
 
 export default function YourAppNavigation() {
   // Using the useAuthContext hook
-  const { isUserLoggedIn } = useAuthContext();
-
+  const { isUserLoggedIn, user } = useAuthContext();
+  
+  if (user) {
+    console.log(user.account_type)
+  } else {
+    console.log ("no account type")
+  }
+  
   return (
     <View style={styles.container}>
-      
       {/* Conditionally render Topbar if isUserLoggedIn is true */}
       {isUserLoggedIn && (
         <SafeAreaView style={styles.safeArea}>
@@ -105,13 +110,21 @@ export default function YourAppNavigation() {
 
       {isUserLoggedIn ? (
         <Tab.Navigator tabBar={props => <NavBar {...props} />}>
+          {/* Always show Home tab */}
           <Tab.Screen name="Home" component={HomeStack} />
+          
+          {/* Always show Feed and Messages for all users */}
           <Tab.Screen name="Feed" component={FeedStack} />
           <Tab.Screen name="Messages" component={MessagesStack} />
-          <Tab.Screen name="Profile" component={ProfileStack} />
-          <Tab.Screen name="Email" component={EmailStack} />
-          <Tab.Screen name="Analytics" component={AnalyticsStack} />
-          {/* Add other screen stacks as necessary */}
+
+          {/* Only show the following tabs if account_type is not "student" */}
+          {user && user.account_type !== "student" && (
+            <>
+              <Tab.Screen name="Profile" component={ProfileStack} />
+              <Tab.Screen name="Email" component={EmailStack} />
+              <Tab.Screen name="Analytics" component={AnalyticsStack} />
+            </>
+          )}
         </Tab.Navigator>
       ) : (
         <Stack.Navigator screenOptions={{ headerShown: false }}>
