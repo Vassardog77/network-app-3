@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useContext } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { deletePost } from '../../actions/posts';
 import { FontAwesome } from '@expo/vector-icons';
@@ -6,7 +6,7 @@ import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import LikeComponent from './LikeComponent';
 import CommentComponent from './CommentComponent';
 import CustomLink from "../../customComponents/CustomLink";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AuthContext } from '../../context/AuthContext';
 
 function Post({ post, current_user, dispatch }) {
     if (!post) {
@@ -35,18 +35,11 @@ function Post({ post, current_user, dispatch }) {
 
 function Posts({ post: singlePost }) {
     const dispatch = useDispatch();
-    const [currentUser, setCurrentUser] = useState(null);
-    const posts = useSelector((state) => state.posts);
 
-    useEffect(() => {
-        AsyncStorage.getItem('user')
-            .then(user => {
-                setCurrentUser(JSON.parse(user));
-            })
-            .catch(error => {
-                console.error("Error fetching user from AsyncStorage:", error);
-            });
-    }, []);
+    // Use AuthContext to fetch the current user
+    const { user: currentUser } = useContext(AuthContext);
+
+    const posts = useSelector((state) => state.posts);
 
     if (!posts || !Array.isArray(posts)) {
         return <Text>Loading posts...</Text>;

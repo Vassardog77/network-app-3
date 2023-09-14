@@ -6,6 +6,7 @@ import thunk from 'redux-thunk';
 import reducers from './reducers';
 import { AuthContextProvider } from './context/AuthContext';
 import YourAppNavigation from './YourAppNavigation';
+import { MenuProvider } from 'react-native-popup-menu';
 
 const store = createStore(reducers, compose(applyMiddleware(thunk)));
 
@@ -14,7 +15,9 @@ export default function App() {
     <Provider store={store}>
       <AuthContextProvider>
         <NavigationContainer>
-          <YourAppNavigation />
+          <MenuProvider>
+            <YourAppNavigation />
+          </MenuProvider>
         </NavigationContainer>
       </AuthContextProvider>
     </Provider>

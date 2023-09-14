@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import io from "socket.io-client";
@@ -6,38 +6,36 @@ import { base_url } from "../../api";
 import { deleteNotification } from '../../actions/notificationActions';
 import { View, Text, Button, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import Select from 'react-native-dropdown-picker';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AuthContext } from "../../context/AuthContext";  // Adjust the import path
 
 const socket = io.connect(base_url);
 
-function ChatVisuals({ room, navigation }) {
-  const decodedRoom = room ? decodeURIComponent(room) : null;
+function ChatVisuals({ route, navigation }) {
+  
+  
+  const decodedRoom = route.params && route.params.room ? decodeURIComponent(route.params.room) : null;
 
-  const [currentUser, setCurrentUser] = useState(null);
+  const { user: currentUser } = useContext(AuthContext);  // Grab the user from AuthContext
+
   const [Room, setRoom] = useState("");
   const [Roomlist, setRoomlist] = useState([]);
   const [newChat, setnewChat] = useState(false);
   const [selectedEmails, setSelectedEmails] = useState([]);
   const [emailOptions, setEmailOptions] = useState([]);
+  const [joinedRoom, setJoinedRoom] = useState(false);
 
   const dispatch = useDispatch();
   const notifications = useSelector(state => state.notifications);
 
   useEffect(() => {
-    async function fetchCurrentUser() {
-      const user = await AsyncStorage.getItem('user');
-      setCurrentUser(JSON.parse(user));
-    }
-
-    fetchCurrentUser();
-
-    if (decodedRoom) {
+    if (decodedRoom && !joinedRoom) {
       joinRoom(decodedRoom);
+      setJoinedRoom(true);
     }
   }, [decodedRoom]);
 
   const joinRoom = (email_list) => {
-    console.log(email_list);
+    console.log(email_list)
     setSelectedEmails([]);
 
     setTimeout(() => {
@@ -55,11 +53,10 @@ function ChatVisuals({ room, navigation }) {
         return true;
       }) : [];
 
-      // Navigate to the ChatScreen and pass necessary data as props
       navigation.navigate('ChatScreen', {
         socket: socket,
         username: currentUser.email,
-        room: room  // Using the local room variable directly
+        room: room  
       });
 
     }, 1);
@@ -129,7 +126,7 @@ function ChatVisuals({ room, navigation }) {
             </View>
         )}
     </View>
-);
+  );
 }
 
 const styles = StyleSheet.create({
@@ -138,7 +135,7 @@ const styles = StyleSheet.create({
       backgroundColor: '#f8f8f8'
   },
   chatList: {
-      flex: 4, // Adjusted this
+      flex: 4, 
       padding: 10,
   },
   header: {
@@ -170,7 +167,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-}
+  }
 });
 
 export default ChatVisuals;

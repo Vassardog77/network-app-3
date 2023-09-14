@@ -1,26 +1,25 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
-import { View, Text, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useLogout } from "../../hooks/useLogout";
 import { base_url } from "../../api";
 import Notifications from './Notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
 
-export default function NavBar() {
+export default function Topbar() {
     const { logout } = useLogout();
     const [currentUser, setCurrentUser] = useState(null);
-    const notificationRef = useRef();
-
+    
     const notifications = useSelector(state => state.notifications);
     const validNotifications = Array.isArray(notifications)
-    ? notifications.filter(notification => ['message', 'comment', 'reply'].includes(notification.type))
-    : [];
+        ? notifications.filter(notification => ['message', 'comment', 'reply'].includes(notification.type))
+        : [];
     const dispatch = useDispatch();
 
     useEffect(() => {
-        // Fetch the user from AsyncStorage
         async function fetchUserFromStorage() {
             try {
                 const userJSON = await AsyncStorage.getItem('user');
@@ -31,7 +30,7 @@ export default function NavBar() {
                 console.error('Error fetching user from storage:', error);
             }
         }
-        
+
         fetchUserFromStorage();
 
         if (currentUser && currentUser.email) {
@@ -45,35 +44,30 @@ export default function NavBar() {
         }
     }, [dispatch, currentUser]);
 
-    const [isNotificationVisible, setNotificationVisibility] = useState(false);
-
-    function displayNotification() {
-        setNotificationVisibility(!isNotificationVisible);
-    }
-
     let notificationCount = validNotifications ? validNotifications.length : 0;
 
     return (
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 10 }}>
+        <View style={styles.container}>
             <View />
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <TouchableOpacity onPress={displayNotification} style={{ marginRight: 10 }}>
-                    <FontAwesome name="bell" size={30} />
-                    {notificationCount > 0 && (
-                        <View style={{ position: 'absolute', right: 0, top: 0, backgroundColor: 'red', borderRadius: 10, padding: 5 }}>
-                            <Text style={{ color: 'white' }}>{notificationCount}</Text>
+            <View style={styles.rightContainer}>
+                <Menu>
+                    <MenuTrigger>
+                        <View style={styles.bellContainer}>
+                            <FontAwesome name="bell" size={30} />
+                            {notificationCount > 0 && (
+                                <View style={styles.notificationBadge}>
+                                    <Text style={styles.notificationCount}>{notificationCount}</Text>
+                                </View>
+                            )}
                         </View>
-                    )}
-                </TouchableOpacity>
-                
-                {isNotificationVisible && (
-                    <View ref={notificationRef} style={{ position: 'absolute', top: 40 }}>
+                    </MenuTrigger>
+                    <MenuOptions customStyles={{ optionsContainer: styles.menuOptions }}>
                         <Notifications />
-                    </View>
-                )}
-                
+                    </MenuOptions>
+                </Menu>
+
                 {currentUser && currentUser.profile_pic && (
-                    <Image source={{ uri: currentUser.profile_pic }} style={{ width: 40, height: 40, borderRadius: 20, marginRight: 10 }} />
+                    <Image source={{ uri: currentUser.profile_pic }} style={styles.profilePic} />
                 )}
                 <TouchableOpacity onPress={logout}>
                     <Text>Log Out</Text>
@@ -82,3 +76,42 @@ export default function NavBar() {
         </View>
     );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: 10,
+        zIndex: 2000,
+        elevation: 20,
+    },
+    rightContainer: {
+        flexDirection: 'row',
+        alignItems: 'center'
+    },
+    bellContainer: {
+        marginRight: 10
+    },
+    notificationBadge: {
+        position: 'absolute', 
+        right: 0, 
+        top: 0, 
+        backgroundColor: 'red', 
+        borderRadius: 10, 
+        padding: 5
+    },
+    notificationCount: {
+        color: 'white'
+    },
+    profilePic: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        marginRight: 10
+    },
+    menuOptions: {
+        marginTop: 40, 
+        marginLeft: '25%'
+    }
+});
