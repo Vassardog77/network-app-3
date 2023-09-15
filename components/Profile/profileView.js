@@ -1,16 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { View, Text, Button, Image, StyleSheet } from 'react-native';
 import axios from 'axios';
 import { base_url } from '../../api';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage'; // Importing AsyncStorage
+import { AuthContext } from '../../context/AuthContext';
 
 function ProfileView(props) {
     const navigation = useNavigation();
     const route = useRoute();
-    const { id } = route.params || {};
+    const { id, creator } = route.params || {};
 
-    const [currentUser, setCurrentUser] = useState(null); // Set initial value to null
+    // Get the current user from AuthContext
+    const { user: currentUser } = useContext(AuthContext);
+
     const [Img1, setImg1] = useState('');
     const [Orgname, setOrgname] = useState('');
     const [Img2, setImg2] = useState('');
@@ -21,25 +23,12 @@ function ProfileView(props) {
     const [noProfile, setNoProfile] = useState(false);
 
     useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const user = await AsyncStorage.getItem('user');
-                const parsedUser = JSON.parse(user);
-                setCurrentUser(parsedUser);
-                return parsedUser;
-            } catch (error) {
-                console.log("Error fetching user from AsyncStorage:", error);
-                return null;
-            }
-        }
-    
         const fetchData = async (userEmail) => {
-            const email = id ? id : userEmail;
-    
+            const email = creator || id || userEmail;
+
             await axios.post(base_url+'/profiles/get', { data: email })
             .then((response) => {
                 if (response.data) {
-                    //console.log(response.data)
                     setImg1(response.data.img1);
                     setOrgname(response.data.org_name);
                     setImg2(response.data.img2);
@@ -53,22 +42,32 @@ function ProfileView(props) {
                 }
             });
         };
-    
-        fetchUser().then(user => {
-            if (user) {
-                fetchData(user.email);
-            }
+
+        if (creator) {
+            fetchData(creator);
+        } else if (currentUser) {
+            fetchData(currentUser.email);
+        }
+    }, [creator]);
+
+    const handlePress = useCallback((tabName, screenName, params = {}) => {
+        navigation.navigate(tabName, {
+            screen: screenName,
+            params: params
         });
-    }, []);
+    }, [navigation]);
 
     const messageLink = () => {
-        const room = [currentUser.email, id].sort().join(', ');
-        navigation.navigate('Messages', { room });
+        if (currentUser && creator) {
+            const roomcode = [currentUser.email, creator].sort().join(', ');
+            handlePress('Messages', 'MessagesScreen', { room: roomcode });
+        }
     };
+    
 
     return (
         <View style={styles.profile}>
-            {id && (
+            {creator && (
                 <Button title="Message" onPress={messageLink} />
             )}
             {noProfile ? (

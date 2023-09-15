@@ -29,6 +29,7 @@ function HomeStack() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="HomeScreen" component={Home} />
       <Stack.Screen name="FormScreen" component={Form} />
+      <Stack.Screen name="FeedScreen" component={Feed} />
       <Stack.Screen name="LoginScreen" component={LoginPage} />
       {/* Add other screens related to Home if necessary */}
     </Stack.Navigator>
@@ -41,6 +42,7 @@ function FeedStack() {
       <Stack.Screen name="FeedScreen" component={Feed} />
       <Stack.Screen name="SinglePostScreen" component={SinglePost} />
       <Stack.Screen name="FormScreen" component={Form} />
+      <Stack.Screen name="ProfileScreen" component={AltProfile} />
       <Stack.Screen name="LoginScreen" component={LoginPage} />
       {/* Add other screens related to Feed if necessary */}
     </Stack.Navigator>
@@ -63,6 +65,7 @@ function ProfileStack() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="ProfileScreen" component={Profile} />
       <Stack.Screen name="AltProfileScreen" component={AltProfile} />
+      <Stack.Screen name="MessagesScreen" component={Messages} />
       <Stack.Screen name="LoginScreen" component={LoginPage} />
       {/* Add other screens related to Profile if necessary */}
     </Stack.Navigator>

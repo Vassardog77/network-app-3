@@ -6,13 +6,15 @@ import Chatbot from './Chatbot';
 import InstagramLogin from '../MediaLogin/InstagramLogin';
 import FacebookLogin from '../MediaLogin/FacebookLogin';
 import { base_url } from '../../api';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
-import ImagePicker from 'react-native-image-picker';
+import { View, Text, TextInput, Button, StyleSheet, Alert, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as ImagePicker from 'expo-image-picker';
 
 function Form({ navigation }) { 
     const [instagram_login, setInstagramLogin] = useState(null);
     const [current_user, setCurrentUser] = useState(null);
+    const [imageConfirmed, setImageConfirmed] = useState(false);
+
 
     useEffect(() => {
         (async () => {
@@ -24,7 +26,7 @@ function Form({ navigation }) {
     }, []);
 
     const [postData, setPostData] = useState({
-        creator: '', // Initialize with empty string
+        creator: '',
         message: '',
         tags: '',
         selectedFile: '',
@@ -67,7 +69,6 @@ function Form({ navigation }) {
                                 setCreationId(response.data.id);
                                 //Alert.alert("Post Created!"); 
                                 setPostData({ creator: current_user.email, message: '', tags: '', selectedFile: '', date: '' });
-                                sessionStorage.setItem('closePopups', 'true');
                             })
                             .catch((error) => {
                                 Alert.alert("Error Creating Post. \nPlease make sure that you are logged in and try again");
@@ -82,9 +83,7 @@ function Form({ navigation }) {
                     .then((response) => {
                         console.log(JSON.stringify(response.data));
                         setCreationId(response.data.id);
-                        //Alert.alert("Post Created!");
                         setPostData({ creator: current_user.email, message: '', tags: '', selectedFile: '', date: '' });
-                        sessionStorage.setItem('closePopups', 'true');
                     })
                     .catch((error) => {
                         //Alert.alert("Error Creating Post. \nPlease make sure that you are logged in and try again");
@@ -115,24 +114,40 @@ function Form({ navigation }) {
         }
     }, [instagram_login, MediaSelector]);
 
-    const pickImage = () => {
-        ImagePicker.showImagePicker(response => {
-            if (response.didCancel) {
-                console.log('User cancelled image picker');
-            } else if (response.error) {
-                console.log('ImagePicker Error: ', response.error);
-            } else {
-                setPostData({ ...postData, selectedFile: response.data });
+    useEffect(() => {
+        (async () => {
+            if (Platform.OS !== 'web') {
+                const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+                if (status !== 'granted') {
+                    Alert.alert('Sorry, we need camera roll permissions to make this work!');
+                }
             }
+        })();
+    }, []);
+
+    const pickImage = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.All,
+            allowsEditing: true,
+            quality: 1,
+            base64: true
         });
+        
+        if (!result.cancelled) {
+            const base64Data = result.assets[0].base64; 
+            if (base64Data) {
+                const base64String = `data:image/jpeg;base64,${base64Data}`; 
+                setPostData({ ...postData, selectedFile: base64String });
+                setImageConfirmed(true);  // Confirm that an image is selected
+            }
+        }
     };
+
 
     return (
         <View style={styles.post_maker}>
             <View style={styles.media_selector_button}>
                 <Text>Posting to: {MediaSelector}</Text>
-                {/*<Button title="Network" onPress={change_mediaselector_network} />
-                <Button title="Instagram" onPress={change_mediaselector_instagram} />*/}
             </View>
 
             {(instagram_login === 'false' || instagram_login === null) && MediaSelector === "Instagram" ? (
@@ -146,16 +161,14 @@ function Form({ navigation }) {
             ) : (
                 <View>
                     <Button title="Pick an image" onPress={pickImage} />
+                    {imageConfirmed && <Text style={{ fontWeight: "bold", marginLeft: 10, marginTop: 10, color: 'green' }}>Image Attached!</Text>}
                     <TextInput style={styles.textarea} multiline placeholder='Message...' value={postData.message} onChangeText={(text) => setPostData({ ...postData, message: text })} />
-                    {/*<Text>Schedule your post? (optional)</Text>
-                    <TextInput placeholder="Enter date and time" onChangeText={(text) => setPostData({ ...postData, date: text })} />*/}
                     <Button title="Submit Post" onPress={handleSubmit} />
                 </View>
             )}
             <Chatbot/>
         </View>
     );
-
 }
 
 const styles = StyleSheet.create({

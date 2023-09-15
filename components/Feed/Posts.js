@@ -5,20 +5,24 @@ import { FontAwesome } from '@expo/vector-icons';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import LikeComponent from './LikeComponent';
 import CommentComponent from './CommentComponent';
-import CustomLink from "../../customComponents/CustomLink";
 import { AuthContext } from '../../context/AuthContext';
+import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
 
 function Post({ post, current_user, dispatch }) {
+    const navigation = useNavigation(); // Use the hook to get navigation
+
     if (!post) {
         return null;
     }
 
     return (
         <View style={styles.postContainer}>
-            <View style={styles.header}>
-                <Image source={{ uri: post?.profile_pic || 'defaultPicLinkHere' }} style={styles.profilePic} />
-                <Text>{post.creator.split('@')[0]}</Text>
-            </View>
+            <TouchableOpacity onPress={() => navigation.navigate('ProfileScreen', { creator: post.creator })}>
+                <View style={styles.header}>
+                    <Image source={{ uri: post?.profile_pic || 'defaultPicLinkHere' }} style={styles.profilePic} />
+                    <Text>{post.creator.split('@')[0]}</Text>
+                </View>
+            </TouchableOpacity>
             {post.selectedFile && <Image source={{ uri: post.selectedFile }} style={styles.postImage} />}
             <View style={styles.postContent}>
                 <Text>{post.message}</Text>

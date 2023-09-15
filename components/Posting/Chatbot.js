@@ -74,7 +74,7 @@ function Chatbot() {
         placeholder="Enter your post description..."
         value={postDescription}
         onChangeText={text => setPostDescription(text)}
-      />
+  />
       <Button title="Generate Captions" onPress={handleSubmit} />
       {loading ? <Text>Loading...</Text> : <ScrollView style={styles.content}><Text>{content}</Text></ScrollView>}
     </View>
@@ -83,14 +83,14 @@ function Chatbot() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    padding: 20
+    
+    padding: 10
   },
   heading: {
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 20,
-    marginTop: 100
+    marginTop: 30
   },
   textarea: {
     height: 100,
