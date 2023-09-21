@@ -44,7 +44,10 @@ const Emailvisuals = (props) => {
     }
 
     return (
-        <View style={styles.container}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <Text style={{ fontSize: 30, fontWeight: 'bold' }}>Coming Soon!</Text>
+            <Text style={{ fontSize: 30, fontWeight: 'bold' }}>(With Google Login)</Text>
+        {/*<View style={styles.container}>
             <View style={styles.componentParent}>
                 <View style={styles.header}>
                     <Text>Email</Text>
@@ -54,7 +57,7 @@ const Emailvisuals = (props) => {
                 {error ? (
                     <View style={styles.messageContainer}>
                         <Text>Please log in with google to continue</Text>
-                        {/*<GoogleLogin />*/}
+                        {<GoogleLogin />}
                     </View>
                 ) : (
                     <ScrollView style={styles.emailBox}>
@@ -84,6 +87,7 @@ const Emailvisuals = (props) => {
                     <EmailFunctionality />
                 </View>
             )}
+        </View>*/}
         </View>
     );
 }

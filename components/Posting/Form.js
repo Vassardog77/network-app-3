@@ -166,7 +166,7 @@ function Form({ navigation }) {
                     <Button title="Submit Post" onPress={handleSubmit} />
                 </View>
             )}
-            <Chatbot/>
+            {/*<Chatbot/>*/}
         </View>
     );
 }

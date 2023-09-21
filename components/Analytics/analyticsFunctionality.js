@@ -63,13 +63,15 @@ function AnalyticsFunctionality(props) {
         );
     };
 
-    return (
-        <ScrollView style={styles.component_parent}>
+    return (<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    <Text style={{ fontSize: 30, fontWeight: 'bold' }}>Coming Soon!</Text>
+    <Text style={{ fontSize: 30, fontWeight: 'bold' }}>(With Instagram Login)</Text>
+        {/*<ScrollView style={styles.component_parent}>
             <View style={styles.analytics}>
                 {Content}
             </View>
-        </ScrollView>
-    );
+</ScrollView>*/}
+    </View>);
 }
 
 const styles = StyleSheet.create({

@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { useLogin } from '../../hooks/useLogin';
-import Logo from '../../assets/Logo_1.6.png';
+import Logo from '../../assets/logo_1.6.png';
 
 const LoginPage = ({ navigation }) => {
   const [email, setEmail] = useState('');

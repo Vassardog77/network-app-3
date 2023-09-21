@@ -11,6 +11,14 @@ export const authReducer = (state, action) => {
       return { ...state, user: action.payload, isUserLoggedIn: true };
     case 'LOGOUT':
       return { ...state, user: null, isUserLoggedIn: false };
+    case 'UPDATE_PUSH_TOKEN':
+      return { 
+        ...state, 
+        user: {
+          ...state.user,
+          expoPushToken: action.payload 
+        } 
+      }; // this updates the expoPushToken of the current user in the state
     default:
       return state;
   }
@@ -34,7 +42,7 @@ export const AuthContextProvider = ({ children }) => {
     loadInitialState();
   }, []);
 
-  console.log('AuthContext state:', state);
+  //console.log('AuthContext state:', state); //logs the entire user oject upon logging in
 
   return (
     <AuthContext.Provider value={{ ...state, dispatch }}>

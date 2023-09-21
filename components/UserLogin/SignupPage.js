@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { useSignup } from '../../hooks/useSignup';
-import Logo from '../../assets/Logo_1.6.png';
+import Logo from '../../assets/logo_1.6.png';
 import ImagePicker from 'react-native-image-picker';
 import { Picker } from '@react-native-picker/picker';  // <-- Updated Picker import
 

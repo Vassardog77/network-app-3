@@ -12,6 +12,8 @@ const notificationsReducer = (state = initialState, action) => {
     case 'DELETE_NOTIFICATION':
       // After deletion, set the state as received from payload 
       return action.payload; // assuming the payload is the updated notifications list
+    case 'UPDATE_NOTIFICATION':
+      return action.payload;
     default:
       return state;
   }
