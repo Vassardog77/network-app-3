@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { useSignup } from '../../hooks/useSignup';
-import Logo from '../../assets/logo_1.6.png';
+//import Logo from '../../assets/logo_1.6.png';
 import ImagePicker from 'react-native-image-picker';
 import { Picker } from '@react-native-picker/picker';  // <-- Updated Picker import
 
@@ -41,8 +41,7 @@ const Signup = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.logo}>
-        <Image source={Logo} style={styles.logoImage} />
-      </View>
+        {/*<Image source={Logo} style={styles.logoImage} />*/}</View>
       <View style={styles.signupPage}>
         <Text style={styles.header}>Sign Up</Text>
 
@@ -75,9 +74,10 @@ const Signup = ({ navigation }) => {
         />
 
       <Text>Account type:</Text>
-      <Picker
+      
+      <Picker 
         selectedValue={Account_type}
-        style={{height: 50, width: 150}}
+        style={{height: 50, width: '100%'}}
         onValueChange={(itemValue, itemIndex) =>
           setAccount_type(itemValue)
         }>
@@ -85,7 +85,9 @@ const Signup = ({ navigation }) => {
         <Picker.Item label="Student" value="student" />
         <Picker.Item label="Organization" value="organization" />
       </Picker>
+    
 
+      <View style={styles.submit_button}>
         <Button disabled={isLoading} title='Sign up' onPress={handleSubmit} />
         {error && <Text style={styles.error}>{error}</Text>}
 
@@ -96,16 +98,21 @@ const Signup = ({ navigation }) => {
           </TouchableOpacity>
         </View>
       </View>
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    marginTop: -100,
     flex: 1,
     justifyContent: 'center',
     paddingHorizontal: 10,
   },
+  submit_button: {
+    marginTop: 180,
+  },  
   logo: {
     alignItems: 'center',
   },
@@ -138,7 +145,7 @@ const styles = StyleSheet.create({
     marginLeft: 5,
   },
   imagePicker: {
-    marginTop: 10,
+    marginTop: -10,
   },
 });
 
