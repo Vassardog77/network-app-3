@@ -2,7 +2,7 @@
   "expo": {
     "name": "Network",
     "slug": "network",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/logo_1.6_white.png",
     "userInterfaceStyle": "automatic",
@@ -14,7 +14,8 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.network770.app"
+      "bundleIdentifier": "com.network770.app",
+      "buildNumber": "2"
     },
     "android": {
       "package": "com.network770.app",
