@@ -19,7 +19,7 @@
     },
     "android": {
       "package": "com.network770.app",
-      "versionCode": 3,
+      "versionCode": 4,
       "adaptiveIcon": {
         "foregroundImage": "./assets/logo_1.6.png",
         "backgroundColor": "#ffffff"

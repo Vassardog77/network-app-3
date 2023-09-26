@@ -1,6 +1,6 @@
 // AuthContext.js
 
-import React, { createContext, useReducer, useEffect } from 'react';
+import React, { createContext, useReducer, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const AuthContext = createContext();
@@ -18,31 +18,29 @@ export const authReducer = (state, action) => {
           ...state.user,
           expoPushToken: action.payload 
         } 
-      }; // this updates the expoPushToken of the current user in the state
+      };
     default:
-      return state;
+      throw new Error(`Unhandled action type: ${action.type}`);
   }
 };
 
 export const AuthContextProvider = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, { user: null, isUserLoggedIn: false });
 
-  const loadInitialState = async () => {
+  const loadInitialState = useCallback(async () => {
     try {
       const user = await AsyncStorage.getItem('user');
       if (user !== null) {
         dispatch({ type: 'LOGIN', payload: JSON.parse(user) });
       }
     } catch (error) {
-      console.error(error);
+      console.error('Error loading initial state:', error.message || error);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadInitialState();
-  }, []);
-
-  //console.log('AuthContext state:', state); //logs the entire user oject upon logging in
+  }, [loadInitialState]);
 
   return (
     <AuthContext.Provider value={{ ...state, dispatch }}>
