@@ -1,12 +1,20 @@
 //ported to react native
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import { useLogin } from '../../hooks/useLogin';
-import Logo from '../../assets/logo_1.6.png';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+} from "react-native";
+import { useLogin } from "../../hooks/useLogin";
+import Logo from "../../assets/Logo_1.6.png";
 
 const LoginPage = ({ navigation }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const { login, error, isLoading } = useLogin();
 
   const handleSubmit = async () => {
@@ -26,7 +34,7 @@ const LoginPage = ({ navigation }) => {
           style={styles.input}
           onChangeText={(text) => setEmail(text)}
           value={email}
-          keyboardType='email-address'
+          keyboardType="email-address"
         />
         <Text>Password:</Text>
         <TextInput
@@ -35,11 +43,14 @@ const LoginPage = ({ navigation }) => {
           value={password}
           secureTextEntry={true}
         />
-        <Button disabled={isLoading} title='Log in' onPress={handleSubmit} />
+        <Button disabled={isLoading} title="Log in" onPress={handleSubmit} />
         {error && <Text style={styles.error}>{error}</Text>}
         <View style={styles.userAuth}>
           <Text>Don't have an account?</Text>
-          <TouchableOpacity onPress={() => navigation.navigate('SignupScreen')} style={styles.loginSwitch}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("SignupScreen")}
+            style={styles.loginSwitch}
+          >
             <Text>Sign up</Text>
           </TouchableOpacity>
         </View>
@@ -51,11 +62,11 @@ const LoginPage = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
     paddingHorizontal: 10,
   },
   logo: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   logoImage: {
     width: 100,
@@ -64,23 +75,23 @@ const styles = StyleSheet.create({
   loginPage: {},
   header: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   input: {
     height: 40,
-    borderColor: 'gray',
+    borderColor: "gray",
     borderWidth: 1,
     marginTop: 10,
     marginBottom: 10,
     paddingLeft: 10,
   },
   error: {
-    color: 'red',
+    color: "red",
   },
   userAuth: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
   },
   loginSwitch: {
     marginLeft: 5,
