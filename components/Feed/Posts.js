@@ -53,8 +53,8 @@ function Posts({ post: singlePost }) {
 
     return (
         <View style={styles.postsContainer}>
-            {postsToRender.slice().reverse().map((post, index) => 
-                <Post key={index} post={post} current_user={currentUser} dispatch={dispatch} />
+            {postsToRender.slice().reverse().map((post) => 
+                <Post key={post._id} post={post} current_user={currentUser} dispatch={dispatch} />
             )}
         </View>
     );

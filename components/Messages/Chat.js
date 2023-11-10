@@ -92,16 +92,16 @@ function Chat({ route }) {
         onContentSizeChange={scrollToBottom}
       >
         <View style={styles.chatBody}>
-          {messageHistory.concat(messageList).map((messageContent) => (
-            <View key={messageContent._id}>
-              <Text style={username === messageContent.author ? styles.messageYou : styles.messageOther}>
-                {messageContent.message}
-              </Text>
-              <Text style={username === messageContent.author ? styles.messageAuthorYou : styles.messageAuthorOther}>
-                {messageContent.author.split('@')[0]}
-              </Text>
-            </View>
-          ))}
+        {messageHistory.concat(messageList).map((messageContent) => (
+          <View key={`${messageContent.author}-${messageContent.message}-${messageContent.time}`}>
+            <Text style={username === messageContent.author ? styles.messageYou : styles.messageOther}>
+              {messageContent.message}
+            </Text>
+            <Text style={username === messageContent.author ? styles.messageAuthorYou : styles.messageAuthorOther}>
+              {messageContent.author.split('@')[0]}
+            </Text>
+          </View>
+        ))}
         </View>
       </ScrollView>
       <View style={styles.chatFooter}>

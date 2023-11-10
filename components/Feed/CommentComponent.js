@@ -57,22 +57,22 @@ const CommentComponentNative = ({ post, current_user, dispatch }) => {
                     <Button title="Submit" onPress={handleSubmitComment} />
                 </View>
                 <ScrollView>
-                    {postComments.slice().reverse().map((cmt) => (
-                        <View key={cmt._id} style={styles.commentContainer}>
-                            <View style={styles.commentHeader}>
-                                <Text>
-                                    <Text style={{fontWeight: 'bold'}}>{cmt.user.split('@')[0]}</Text>: {cmt.comment}
-                                </Text>
-                                <TouchableWithoutFeedback onPress={() => toggleShowReplies(cmt.id)}>
-                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                        <FontAwesomeIcon icon={faReply} />
-                                        <Text>{showReplies[cmt.id] ? "" : ""}</Text>
-                                    </View>
-                                </TouchableWithoutFeedback>
-                            </View>
-                            {showReplies[cmt.id] && <ReplyComponent parentComment={cmt} post={post} current_user={current_user} dispatch={dispatch} />}
+                {postComments.slice().reverse().map((cmt) => (
+                    <View key={cmt.id} style={styles.commentContainer}>
+                        <View style={styles.commentHeader}>
+                            <Text>
+                                <Text style={{fontWeight: 'bold'}}>{cmt.user.split('@')[0]}</Text>: {cmt.comment}
+                            </Text>
+                            <TouchableWithoutFeedback onPress={() => toggleShowReplies(cmt.id)}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                    <FontAwesomeIcon icon={faReply} />
+                                    <Text>{showReplies[cmt.id] ? "" : ""}</Text>
+                                </View>
+                            </TouchableWithoutFeedback>
                         </View>
-                    ))}
+                        {showReplies[cmt.id] && <ReplyComponent parentComment={cmt} post={post} current_user={current_user} dispatch={dispatch} />}
+                    </View>
+                ))}
                 </ScrollView>
             </View>
         </TouchableWithoutFeedback>

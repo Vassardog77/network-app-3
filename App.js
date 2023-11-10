@@ -7,14 +7,14 @@ import reducers from './reducers';
 import { AuthContextProvider, AuthContext } from './context/AuthContext'; // <-- Make sure to import AuthContext
 import YourAppNavigation from './YourAppNavigation';
 import { MenuProvider } from 'react-native-popup-menu';
-import { registerForPushNotificationsAsync } from './actions/notificationActions';
+//import { registerForPushNotificationsAsync } from './actions/notificationActions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
 
 const store = createStore(reducers, compose(applyMiddleware(thunk)));
 
 export default function App() {
-  const [isReady, setIsReady] = useState(false);
+  /*const [isReady, setIsReady] = useState(false);
   
   useEffect(() => {
     async function fetchToken() {
@@ -37,7 +37,7 @@ export default function App() {
   if (!isReady) {
     // Optionally show a loading screen or return null
     return null;
-  }
+  }*/
 
   return (
     <Provider store={store}>

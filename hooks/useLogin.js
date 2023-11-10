@@ -3,7 +3,7 @@ import { useAuthContext } from './useAuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { base_url } from '../api';
 import { useNavigation } from '@react-navigation/native';
-import { updateNotification } from '../actions/notificationActions';
+//import { updateNotification } from '../actions/notificationActions';
 import { useDispatch } from 'react-redux';
 
 export const useLogin = () => {
@@ -35,9 +35,9 @@ export const useLogin = () => {
 
       const json = await response.json();
 
-      const expoPushTokenFromStorage = await AsyncStorage.getItem('expoPushToken');
+      //const expoPushTokenFromStorage = await AsyncStorage.getItem('expoPushToken');
 
-      if (expoPushTokenFromStorage) {
+      /*if (expoPushTokenFromStorage) {
         console.log("Expo push token from storage:", expoPushTokenFromStorage);
         authDispatch({ type: 'UPDATE_PUSH_TOKEN', payload: expoPushTokenFromStorage });
         try {
@@ -48,7 +48,7 @@ export const useLogin = () => {
         } catch (error) {
           console.log('Error updating push token:', error);
         }
-      }
+      }*/
 
       await AsyncStorage.setItem('user', JSON.stringify(json));
       authDispatch({ type: 'LOGIN', payload: json });

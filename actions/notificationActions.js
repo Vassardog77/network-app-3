@@ -5,9 +5,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const sendNotification = (config) => async (dispatch) => {
   try {
-    const token = await registerForPushNotificationsAsync();
+    //const token = await registerForPushNotificationsAsync();
     if (token) {
       config.token = token; // Adding token to your configuration
+      const data = await api.sendNotification(config);
+      dispatch({ type: "SEND_NOTIFICATION", payload: data });
+    } else {
       const data = await api.sendNotification(config);
       dispatch({ type: "SEND_NOTIFICATION", payload: data });
     }
